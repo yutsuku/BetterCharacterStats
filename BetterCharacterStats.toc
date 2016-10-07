@@ -1,0 +1,7 @@
+## Interface: 11200
+## Title: BetterCharacterStats
+## Author: moh
+## Version: 1.2
+## SavedVariablesPerCharacter: BCSConfig
+
+BetterCharacterStats.xml

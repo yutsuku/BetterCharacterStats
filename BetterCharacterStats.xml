@@ -1,0 +1,301 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+
+	<Script File="Localization.lua"/>
+	<Script File="helper.lua"/>
+	<Script File="BetterCharacterStats.lua"/>
+	
+	<Frame name="BetterStatFrameTemplate" virtual="true">
+        <Size>
+            <AbsDimension x="104" y="13"/>
+        </Size>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <FontString name="$parentLabel" inherits="GameFontNormalSmall">
+                    <Anchors>
+                        <Anchor point="LEFT"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+		<Frames>
+			<Frame name="$parentStat">
+				<Size>
+					<AbsDimension x="30" y="13"/>
+				</Size>
+				<Anchors>
+					<Anchor point="RIGHT"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						 <FontString name="$parentText" inherits="GameFontHighlightSmall" justifyH="RIGHT">
+							<Anchors>
+								<Anchor point="RIGHT"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnEnter>
+				--PaperDollStatTooltip(self, "player");
+			</OnEnter>
+			<OnLeave>
+				--GameTooltip:Hide();
+			</OnLeave>
+		</Scripts>
+    </Frame>
+	
+	<Frame name="BCSFrame" hidden="true">
+		<Frames>
+			<Frame name="BetterCharacterAttributesFrame" parent="PaperDollFrame">
+				<Size>
+					<AbsDimension x="230" y="78"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="67" y="-291"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						 <Texture name="PlayerStatLeftTop" file="Interface\PaperDollInfoFrame\UI-Character-StatBackground">
+							<Size>
+								<AbsDimension x="115" y="16"/>
+							</Size>
+						   <Anchors>
+								<Anchor point="TOPLEFT">
+									<Offset>
+										<AbsDimension x="0" y="0"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<TexCoords left="0" right="0.8984375" top="0" bottom="0.125"/>
+						</Texture>
+						<Texture name="PlayerStatLeftMiddle" file="Interface\PaperDollInfoFrame\UI-Character-StatBackground">
+							<Size>
+								<AbsDimension x="115" y="53"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeTo="PlayerStatLeftTop" relativePoint="BOTTOMLEFT">
+									<Offset>
+										<AbsDimension x="0" y="0"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<TexCoords left="0" right="0.8984375" top="0.125" bottom="0.1953125"/>
+						</Texture>
+						<Texture name="PlayerStatLeftBottom" file="Interface\PaperDollInfoFrame\UI-Character-StatBackground">
+							<Size>
+								<AbsDimension x="115" y="16"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeTo="PlayerStatLeftMiddle" relativePoint="BOTTOMLEFT">
+									<Offset>
+										<AbsDimension x="0" y="0"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<TexCoords left="0" right="0.8984375" top="0.484375" bottom="0.609375"/>
+						</Texture>
+					   <Texture name="PlayerStatRightTop" file="Interface\PaperDollInfoFrame\UI-Character-StatBackground">
+							<Size>
+								<AbsDimension x="115" y="16"/>
+							</Size>
+						   <Anchors>
+								<Anchor point="TOPLEFT" relativeTo="PlayerStatLeftTop" relativePoint="TOPRIGHT">
+									<Offset>
+										<AbsDimension x="0" y="0"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<TexCoords left="0" right="0.8984375" top="0" bottom="0.125"/>
+						</Texture>
+						<Texture name="PlayerStatRightMiddle" file="Interface\PaperDollInfoFrame\UI-Character-StatBackground">
+							<Size>
+								<AbsDimension x="115" y="53"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeTo="PlayerStatRightTop" relativePoint="BOTTOMLEFT">
+									<Offset>
+										<AbsDimension x="0" y="0"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<TexCoords left="0" right="0.8984375" top="0.125" bottom="0.1953125"/>
+						</Texture>
+						<Texture name="PlayerStatRightBottom" file="Interface\PaperDollInfoFrame\UI-Character-StatBackground">
+							<Size>
+								<AbsDimension x="115" y="16"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeTo="PlayerStatRightMiddle" relativePoint="BOTTOMLEFT">
+									<Offset>
+										<AbsDimension x="0" y="0"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<TexCoords left="0" right="0.8984375" top="0.484375" bottom="0.609375"/>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Frames>
+					<Frame name="PlayerStatFrameLeft1" inherits="BetterStatFrameTemplate" id="1">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="6" y="-3"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="PlayerStatFrameLeft2" inherits="BetterStatFrameTemplate" id="2">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="PlayerStatFrameLeft1" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="PlayerStatFrameLeft3" inherits="BetterStatFrameTemplate" id="3">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="PlayerStatFrameLeft2" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="PlayerStatFrameLeft4" inherits="BetterStatFrameTemplate" id="4">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="PlayerStatFrameLeft3" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="PlayerStatFrameLeft5" inherits="BetterStatFrameTemplate" id="5">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="PlayerStatFrameLeft4" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="PlayerStatFrameLeft6" inherits="BetterStatFrameTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="PlayerStatFrameLeft5" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+				   <Frame name="PlayerStatFrameRight1" inherits="BetterStatFrameTemplate" id="1">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="PlayerStatRightTop">
+								<Offset>
+									<AbsDimension x="6" y="-3"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="PlayerStatFrameRight2" inherits="BetterStatFrameTemplate" id="2">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="PlayerStatFrameRight1" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="PlayerStatFrameRight3" inherits="BetterStatFrameTemplate" id="3">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="PlayerStatFrameRight2" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="PlayerStatFrameRight4" inherits="BetterStatFrameTemplate" id="4">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="PlayerStatFrameRight3" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="PlayerStatFrameRight5" inherits="BetterStatFrameTemplate" id="5">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="PlayerStatFrameRight4" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="PlayerStatFrameRight6" inherits="BetterStatFrameTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="PlayerStatFrameRight5" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="PlayerStatFrameLeftDropDown" inherits="UIDropDownMenuTemplate" enableMouse="true">
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" relativeTo="PlayerStatLeftTop" relativePoint="TOPLEFT">
+								<Offset>
+									<AbsDimension x="-17" y="-8"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								PlayerStatFrameLeftDropDown_OnLoad()
+							</OnLoad>
+						</Scripts>
+					</Frame>
+					<Frame name="PlayerStatFrameRightDropDown" inherits="UIDropDownMenuTemplate" enableMouse="true">
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" relativeTo="PlayerStatRightTop" relativePoint="TOPLEFT">
+								<Offset>
+									<AbsDimension x="-17" y="-8"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								PlayerStatFrameRightDropDown_OnLoad()
+							</OnLoad>
+						</Scripts>
+					</Frame>
+				</Frames>
+				<Scripts>
+					<OnShow>
+						BCS:OnShow()
+					</OnShow>
+				</Scripts>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+                BCS:OnLoad();
+			</OnLoad>
+			<OnEvent>
+				BCS:OnEvent();
+			</OnEvent>
+		</Scripts>
+	</Frame>
+	
+
+	
+</Ui>
