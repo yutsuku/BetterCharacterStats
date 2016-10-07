@@ -2,6 +2,13 @@ BCS = BCS or {}
 
 BCS["L"] = {
 
+	["Equip: Improves your chance to hit by (%d)%%."] = "Equip: Improves your chance to hit by (%d)%%.",
+	["Increases your chance to hit with melee weapons by (%d)%%."] = "Increases your chance to hit with melee weapons by (%d)%%.",
+	["([%d.]+)%% chance to crit"] = "([%d.]+)%% chance to crit",
+	["Equip: Improves your chance to get a critical strike with spells by (%d)%%."] = "Equip: Improves your chance to get a critical strike with spells by (%d)%%.",
+	["Equip: Improves your chance to hit with spells by (%d)%%."] = "Equip: Improves your chance to hit with spells by (%d)%%.",
+	["Increases your critical strike chance with ranged weapons by (%d)%%."] = "Increases your critical strike chance with ranged weapons by (%d)%%.",
+
 	PLAYERSTAT_BASE_STATS = "Base Stats",
 	PLAYERSTAT_DEFENSES = "Defenses",
 	PLAYERSTAT_MELEE_COMBAT = "Melee",

@@ -4,14 +4,7 @@ local BCS_Tooltip = getglobal("BetterCharacterStatsTooltip") or CreateFrame("Gam
 local BCS_Prefix = "BetterCharacterStatsTooltip"
 BCS_Tooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
 
-local L = {
-	["Equip: Improves your chance to hit by (%d)%%."] = "Equip: Improves your chance to hit by (%d)%%.",
-	["Increases your chance to hit with melee weapons by (%d)%%."] = "Increases your chance to hit with melee weapons by (%d)%%.",
-	["([%d.]+)%% chance to crit"] = "([%d.]+)%% chance to crit",
-	["Equip: Improves your chance to get a critical strike with spells by (%d)%%."] = "Equip: Improves your chance to get a critical strike with spells by (%d)%%.",
-	["Equip: Improves your chance to hit with spells by (%d)%%."] = "Equip: Improves your chance to hit with spells by (%d)%%.",
-	["Increases your critical strike chance with ranged weapons by (%d)%%."] = "Increases your critical strike chance with ranged weapons by (%d)%%.",
-}
+local L = BCS["L"]
 
 local Cache_GetHitRating_Tab, Cache_GetHitRating_Talent
 function BCS:GetHitRating()
@@ -19,29 +12,22 @@ function BCS:GetHitRating()
 	local MAX_INVENTORY_SLOTS = 19;
 	
 	for slot=0, MAX_INVENTORY_SLOTS do
-		BCS_Tooltip:SetInventoryItem("player", slot);
-		local MAX_LINES = BCS_Tooltip:NumLines()
-		
-		for line=1, MAX_LINES do
-			local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
-			--local right = getglobal(BCS_Prefix .. "TextRight" .. line)
+		local hasItem = BCS_Tooltip:SetInventoryItem("player", slot)
+		if hasItem then
+			local MAX_LINES = BCS_Tooltip:NumLines()
 			
-			if left:GetText() then
-				local _,_, hitLeft = string.find(left:GetText(), L["Equip: Improves your chance to hit by (%d)%%."])
-				if hitLeft then
-					hit = hit + tonumber(hitLeft)
-					line = MAX_LINES
+			for line=1, MAX_LINES do
+				local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
+				if left:GetText() then
+					local _,_, hitLeft = string.find(left:GetText(), L["Equip: Improves your chance to hit by (%d)%%."])
+					if hitLeft then
+						hit = hit + tonumber(hitLeft)
+						line = MAX_LINES
+					end
 				end
 			end
 			
-			--[[if right:GetText() then
-				local _,_, hitRight = string.find(right:GetText(), L["Equip: Improves your chance to hit by (%d)%%."])
-				if hitRight then
-					hit = hit + tonumber(hitRight)
-				end
-			end]]
 		end
-		
 	end
 
 	local MAX_TABS = GetNumTalentTabs()
@@ -74,8 +60,6 @@ function BCS:GetHitRating()
 			
 			for line=1, MAX_LINES do
 				local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
-				--local right = getglobal(BCS_Prefix .. "TextRight" .. line)
-				
 				if left:GetText() then
 					local _,_, hitLeft = string.find(left:GetText(), L["Increases your chance to hit with melee weapons by (%d)%%."])
 					if hitLeft then
@@ -88,14 +72,7 @@ function BCS:GetHitRating()
 						talent = MAX_TALENTS
 						tab = MAX_TABS
 					end
-				end
-				
-				--[[if right:GetText() then
-					local _,_, hitRight = string.find(right:GetText(), L["Increases your chance to hit with melee weapons by (%d)%%."])
-					if hitRight then
-						hit = hit + tonumber(hitRight)
-					end
-				end]]
+				end	
 			end
 			
 		end
@@ -105,11 +82,11 @@ function BCS:GetHitRating()
 end
 
 function BCS:GetSpellHitRating()
-	local hit = 0;
-	local MAX_INVENTORY_SLOTS = 19;
+	local hit = 0
+	local MAX_INVENTORY_SLOTS = 19
 	
 	for slot=0, MAX_INVENTORY_SLOTS do
-		BCS_Tooltip:SetInventoryItem("player", slot);
+		BCS_Tooltip:SetInventoryItem("player", slot)
 		
 		for line=1, BCS_Tooltip:NumLines() do
 			local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
@@ -138,7 +115,7 @@ end
 
 local Cache_GetCritChance_SpellID, Cache_GetCritChance_BookType, Cache_GetCritChance_Line
 function BCS:GetCritChance()
-	local crit = 0;
+	local crit = 0
 	
 	-- speedup
 	if Cache_GetCritChance_SpellID and Cache_GetCritChance_BookType and Cache_GetCritChance_Line then
@@ -162,15 +139,13 @@ function BCS:GetCritChance()
 		
 		for spell=1, numSpells do
 			local currentPage = ceil(spell/SPELLS_PER_PAGE)
-			local SpellID = spell + offset + ( SPELLS_PER_PAGE * (currentPage - 1));
+			local SpellID = spell + offset + ( SPELLS_PER_PAGE * (currentPage - 1))
 
 			BCS_Tooltip:SetSpell(SpellID, BOOKTYPE_SPELL)
 			local MAX_LINES = BCS_Tooltip:NumLines()
 			
 			for line=1, MAX_LINES do
 				local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
-				--local right = getglobal(BCS_Prefix .. "TextRight" .. line)
-				
 				if left:GetText() then
 					local _,_, value = string.find(left:GetText(), L["([%d.]+)%% chance to crit"])
 					if value then
@@ -185,13 +160,6 @@ function BCS:GetCritChance()
 						tab = MAX_TABS
 					end
 				end
-				
-				--[[if right:GetText() then
-					local _,_, value = string.find(right:GetText(), L["([%d.]+)%% chance to crit"])
-					if value then
-						crit = crit + tonumber(value)
-					end
-				end]]
 			end
 			
 		end
@@ -205,7 +173,7 @@ function BCS:GetRangedCritChance()
 	local crit = BCS:GetCritChance()
 	
 	if Cache_GetRangedCritChance_Tab and Cache_GetRangedCritChance_Talent and Cache_GetRangedCritChance_Line then
-		BCS_Tooltip:SetTalent(Cache_GetRangedCritChance_Tab, Cache_GetRangedCritChance_Talent);
+		BCS_Tooltip:SetTalent(Cache_GetRangedCritChance_Tab, Cache_GetRangedCritChance_Talent)
 		local left = getglobal(BCS_Prefix .. "TextLeft" .. Cache_GetRangedCritChance_Line)
 		
 		if left:GetText() then
@@ -229,8 +197,6 @@ function BCS:GetRangedCritChance()
 			
 			for line=1, MAX_LINES do
 				local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
-				--local right = getglobal(BCS_Prefix .. "TextRight" .. line)
-				
 				if left:GetText() then
 					local _,_, value = string.find(left:GetText(), L["Increases your critical strike chance with ranged weapons by (%d)%%."])
 					if value then
@@ -241,13 +207,6 @@ function BCS:GetRangedCritChance()
 						tab = MAX_TABS
 					end
 				end
-				
-				--[[if right:GetText() then
-					local _,_, value = string.find(right:GetText(), L["Increases your critical strike chance with ranged weapons by (%d)%%."])
-					if value then
-						crit = crit + tonumber(value)
-					end
-				end]]
 			end
 			
 		end
@@ -259,10 +218,10 @@ end
 function BCS:GetSpellCritChance()
 	-- school crit: most likely never
 	local spellCrit = 0;
-	local MAX_INVENTORY_SLOTS = 19;
+	local MAX_INVENTORY_SLOTS = 19
 	
 	for slot=0, MAX_INVENTORY_SLOTS do
-		BCS_Tooltip:SetInventoryItem("player", slot);
+		BCS_Tooltip:SetInventoryItem("player", slot)
 		
 		for line=1, BCS_Tooltip:NumLines() do
 			local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
@@ -371,14 +330,3 @@ function BCS:GetManaRegen()
 	
 	return base, casting
 end
-
---[[
-print("Hit rating: " .. format("%.2f%%", GetHitRating()) )
-print("Crit chance: " .. format("%.2f%%", GetCritChance()) )
-print("Ranged Crit chance: " .. format("%.2f%%", GetRangedCritChance()) )
-print("Spell hit rating: " .. format("%.2f%%", GetSpellHitRating()) )
-print("Spell crit chance: " .. format("%.2f%%", GetSpellCritChance()) )
-print("Dodge: " .. format("%.2f%%", GetDodgeChance()) )
-print("Parry: " .. format("%.2f%%", GetParryChance()) )
-print("Block: " .. format("%.2f%%", GetBlockChance()) )
-]]
