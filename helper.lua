@@ -19,9 +19,9 @@ function BCS:GetHitRating()
 			for line=1, MAX_LINES do
 				local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
 				if left:GetText() then
-					local _,_, hitLeft = string.find(left:GetText(), L["Equip: Improves your chance to hit by (%d)%%."])
-					if hitLeft then
-						hit = hit + tonumber(hitLeft)
+					local _,_, value = string.find(left:GetText(), L["Equip: Improves your chance to hit by (%d)%%."])
+					if value then
+						hit = hit + tonumber(value)
 						line = MAX_LINES
 					end
 				end
@@ -40,9 +40,9 @@ function BCS:GetHitRating()
 		for line=1, MAX_LINES do
 			local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
 			if left:GetText() then
-				local _,_, hitLeft = string.find(left:GetText(), L["Increases your chance to hit with melee weapons by (%d)%%."])
-				if hitLeft then
-					hit = hit + tonumber(hitLeft)
+				local _,_, value = string.find(left:GetText(), L["Increases your chance to hit with melee weapons by (%d)%%."])
+				if value then
+					hit = hit + tonumber(value)
 					line = MAX_LINES
 				end
 			end
@@ -61,9 +61,10 @@ function BCS:GetHitRating()
 			for line=1, MAX_LINES do
 				local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
 				if left:GetText() then
-					local _,_, hitLeft = string.find(left:GetText(), L["Increases your chance to hit with melee weapons by (%d)%%."])
-					if hitLeft then
-						hit = hit + tonumber(hitLeft)
+					local _,_, value = string.find(left:GetText(), L["Increases your chance to hit with melee weapons by (%d)%%."])
+					local name, iconTexture, tier, column, rank, maxRank, isExceptional, meetsPrereq = GetTalentInfo(tab, talent)
+					if value and rank > 0 then
+						hit = hit + tonumber(value)
 						
 						Cache_GetHitRating_Tab = tab
 						Cache_GetHitRating_Talent = talent
@@ -199,7 +200,8 @@ function BCS:GetRangedCritChance()
 				local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
 				if left:GetText() then
 					local _,_, value = string.find(left:GetText(), L["Increases your critical strike chance with ranged weapons by (%d)%%."])
-					if value then
+					local name, iconTexture, tier, column, rank, maxRank, isExceptional, meetsPrereq = GetTalentInfo(tab, talent)
+					if value and rank > 0 then
 						crit = crit + tonumber(value)
 						
 						line = MAX_LINES
