@@ -41,7 +41,8 @@ function BCS:GetHitRating()
 			local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
 			if left:GetText() then
 				local _,_, value = string.find(left:GetText(), L["Increases your chance to hit with melee weapons by (%d)%%."])
-				if value then
+				local name, iconTexture, tier, column, rank, maxRank, isExceptional, meetsPrereq = GetTalentInfo(Cache_GetHitRating_Tab, Cache_GetHitRating_Talent)
+				if value and rank > 0 then
 					hit = hit + tonumber(value)
 					line = MAX_LINES
 				end
@@ -179,7 +180,8 @@ function BCS:GetRangedCritChance()
 		
 		if left:GetText() then
 			local _,_, value = string.find(left:GetText(), L["Increases your critical strike chance with ranged weapons by (%d)%%."])
-			if value then
+			local name, iconTexture, tier, column, rank, maxRank, isExceptional, meetsPrereq = GetTalentInfo(Cache_GetRangedCritChance_Tab, Cache_GetRangedCritChance_Talent)
+			if value and rank > 0 then
 				crit = crit + tonumber(value)
 			end
 		end
