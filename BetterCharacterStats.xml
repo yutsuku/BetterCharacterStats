@@ -288,10 +288,10 @@
 		</Frames>
 		<Scripts>
 			<OnLoad>
-                BCS:OnLoad();
+				BCS:OnLoad()
 			</OnLoad>
 			<OnEvent>
-				BCS:OnEvent();
+				BCS:OnEvent()
 			</OnEvent>
 		</Scripts>
 	</Frame>

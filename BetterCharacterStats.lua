@@ -1,7 +1,6 @@
--- to-do, make it faster, get more stats for casters, tooltips
+-- to-do, make it faster, get more stats for casters maaaybe, (more?) tooltips
 BCS = BCS or {}
 BCSConfig = BCSConfig or {}
-
 
 local L, IndexLeft, IndexRight
 L = BCS.L
@@ -31,7 +30,16 @@ function BCS:DebugTrace(start, limit)
 	BCS:Print("limit: " .. limit)
 	
 	for i = start, length, 1 do
-		BCS:Print("[" .. i .. "]" .. BCS.DebugStack[i])
+		BCS:Print("[" .. i .. "] Event: " .. BCS.DebugStack[i].E)
+		BCS:Print(format(
+			"[%d] `- Arguments: %s, %s, %s, %s, %s",
+			i,
+			BCS.DebugStack[i].arg1,
+			BCS.DebugStack[i].arg2,
+			BCS.DebugStack[i].arg3,
+			BCS.DebugStack[i].arg4,
+			BCS.DebugStack[i].arg5
+		))
 		if i >= limit then i = length end
 	end
 	
@@ -49,33 +57,33 @@ function BCS:OnLoad()
 
 	self.Frame:RegisterEvent("ADDON_LOADED")
 	self.Frame:RegisterEvent("UNIT_INVENTORY_CHANGED") -- fires when equipment changes
-	self.Frame:RegisterEvent("SPELLS_CHANGED") -- fires when learning talent
 	self.Frame:RegisterEvent("CHARACTER_POINTS_CHANGED") -- fires when learning talent
-	self.Frame:RegisterEvent("PLAYER_AURAS_CHANGED")
-	self.Frame:RegisterEvent("UNIT_DAMAGE")
-	self.Frame:RegisterEvent("UNIT_RANGEDDAMAGE")
-	self.Frame:RegisterEvent("PLAYER_DAMAGE_DONE_MODS")
-	self.Frame:RegisterEvent("UNIT_ATTACK_SPEED")
-	self.Frame:RegisterEvent("UNIT_ATTACK_POWER")
-	self.Frame:RegisterEvent("UNIT_RANGED_ATTACK_POWER")
-	self.Frame:RegisterEvent("SKILL_LINES_CHANGED")
-	
+	self.Frame:RegisterEvent("PLAYER_AURAS_CHANGED") -- buffs/warrior stances
 end
 
 function BCS:OnEvent()
-	if BCS.Debug then tinsert(BCS.DebugStack, event) end
+	--[[if BCS.Debug then
+		local t = {
+			E = event,
+			arg1 = arg1 or "nil",
+			arg2 = arg2 or "nil",
+			arg3 = arg3 or "nil",
+			arg4 = arg4 or "nil",
+			arg5 = arg5 or "nil",
+		}
+		tinsert(BCS.DebugStack, t)
+	end]]
 	
 	if
-		event == "SKILL_LINES_CHANGED" or 
-		event == "CHARACTER_POINTS_CHANGED" or
-		event == "SPELLS_CHANGED" or
-		event == "UNIT_DAMAGE" or 
-		event == "PLAYER_DAMAGE_DONE_MODS" or 
-		event == "UNIT_ATTACK_SPEED" or 
-		event == "UNIT_RANGED_ATTACK_POWER" or
-		event == "UNIT_RANGEDDAMAGE" or
-		event == "PLAYER_AURAS_CHANGED"
+		event == "PLAYER_AURAS_CHANGED" or
+		event == "CHARACTER_POINTS_CHANGED"
 	then
+		if BCS.PaperDollFrame:IsVisible() then
+			BCS:UpdateStats()
+		else
+			BCS.needUpdate = true
+		end
+	elseif event == "UNIT_INVENTORY_CHANGED" and arg1 == "player" then
 		if BCS.PaperDollFrame:IsVisible() then
 			BCS:UpdateStats()
 		else
@@ -87,13 +95,6 @@ function BCS:OnEvent()
 
 		UIDropDownMenu_SetSelectedValue(PlayerStatFrameLeftDropDown, IndexLeft)
 		UIDropDownMenu_SetSelectedValue(PlayerStatFrameRightDropDown, IndexRight)
-		
-	elseif event == "UNIT_INVENTORY_CHANGED" and arg1 == "player" then
-		if BCS.PaperDollFrame:IsVisible() then
-			BCS:UpdateStats()
-		else
-			BCS.needUpdate = true
-		end
 	end
 end
 
@@ -104,19 +105,48 @@ function BCS:OnShow()
 	end
 end
 
+-- debugging / profiling
+--local avgV = {}
+--local avg = 0
 function BCS:UpdateStats()
-	--local beginTime = debugprofilestop()
+	--[[if BCS.Debug then
+		local e = event or "nil"
+		BCS:Print("Update due to " .. e)
+	end
+	local beginTime = debugprofilestop()]]
+	
 	BCS:UpdatePaperdollStats("PlayerStatFrameLeft", IndexLeft)
 	BCS:UpdatePaperdollStats("PlayerStatFrameRight", IndexRight)
-	--local timeUsed = debugprofilestop()-beginTime
-	--BCS:Print("I used "..timeUsed.." cpu time!")
+
+	--[[local timeUsed = debugprofilestop()-beginTime
+	table.insert(avgV, timeUsed)
+	avg = 0
+	
+	for i,v in ipairs(avgV) do
+		avg = avg + v
+	end
+	avg = avg / getn(avgV)
+	
+	BCS:Print(format("Average: %d (%d results), Exact: %d", avg, getn(avgV), timeUsed))]]
+	--[[
+		Used method:
+		
+		Uneqip main weapon
+		Uneqip secondary weapon
+		Equip main weapon
+		Equip secondary weapon
+		
+		repeat 3x (in total)
+	]]
+	-- 45 264 586 -- default speed
+	-- 44 316 259 -- removed unit checking with hardcoded value "player"
+	--    606 143 -- PLAYERSTAT_MELEE_COMBAT disabled, only updating base stats
+	--    166 225 -- removed update functions from both tabs
+	--      1 412 -- calling timers immediately
+	--    308 575 -- calling BCS:Print() between timers
 end
 
---
--- durrr need to get all that info
--- from somewhere
---
-function BCS:PaperDollFrame_SetStat(statFrame, statIndex)
+function BCS:SetStat(statFrame, statIndex)
 	local label = getglobal(statFrame:GetName().."Label")
 	local text = getglobal(statFrame:GetName().."StatText")
 	local stat
@@ -174,12 +204,9 @@ function BCS:PaperDollFrame_SetStat(statFrame, statIndex)
 	end
 end
 
-function BCS:PaperDollFrame_SetArmor(statFrame, unit)
-	if ( not unit ) then
-		unit = "player"
-	end
+function BCS:SetArmor(statFrame)
 
-	local base, effectiveArmor, armor, posBuff, negBuff = UnitArmor(unit)
+	local base, effectiveArmor, armor, posBuff, negBuff = UnitArmor("player")
 	local totalBufs = posBuff + negBuff
 	local frame = statFrame
 	local label = getglobal(frame:GetName() .. "Label")
@@ -188,7 +215,7 @@ function BCS:PaperDollFrame_SetArmor(statFrame, unit)
 	PaperDollFormatStat(ARMOR, base, posBuff, negBuff, frame, text)
 	label:SetText(TEXT(ARMOR_COLON))
 	
-	local playerLevel = UnitLevel(unit)
+	local playerLevel = UnitLevel("player")
 	local armorReduction = effectiveArmor/((85 * playerLevel) + 400)
 	armorReduction = 100 * (armorReduction/(armorReduction + 1))
 	
@@ -206,11 +233,7 @@ function BCS:PaperDollFrame_SetArmor(statFrame, unit)
 	
 end
 
-local function PaperDollFrame_SetDamage(statFrame, unit)
-	if ( not unit ) then
-		unit = "player"
-	end
-
+function BCS:SetDamage(statFrame)
 	local label = getglobal(statFrame:GetName() .. "Label")
 	label:SetText(TEXT(DAMAGE_COLON))
 	local damageText = getglobal(statFrame:GetName() .. "StatText")
@@ -221,7 +244,7 @@ local function PaperDollFrame_SetDamage(statFrame, unit)
 		GameTooltip:Hide()
 	end)
 
-	local speed, offhandSpeed = UnitAttackSpeed(unit)
+	local speed, offhandSpeed = UnitAttackSpeed("player")
 	
 	local minDamage
 	local maxDamage 
@@ -230,7 +253,7 @@ local function PaperDollFrame_SetDamage(statFrame, unit)
 	local physicalBonusPos
 	local physicalBonusNeg
 	local percent
-	minDamage, maxDamage, minOffHandDamage, maxOffHandDamage, physicalBonusPos, physicalBonusNeg, percent = UnitDamage(unit)
+	minDamage, maxDamage, minOffHandDamage, maxOffHandDamage, physicalBonusPos, physicalBonusNeg, percent = UnitDamage("player")
 	local displayMin = max(floor(minDamage),1)
 	local displayMax = max(ceil(maxDamage),1)
 
@@ -310,11 +333,8 @@ local function PaperDollFrame_SetDamage(statFrame, unit)
 	
 end
 
-local function PaperDollFrame_SetAttackSpeed(statFrame, unit)
-	if ( not unit ) then
-		unit = "player"
-	end
-	local speed, offhandSpeed = UnitAttackSpeed(unit)
+function BCS:SetAttackSpeed(statFrame)
+	local speed, offhandSpeed = UnitAttackSpeed("player")
 	speed = format("%.2f", speed)
 	if ( offhandSpeed ) then
 		offhandSpeed = format("%.2f", offhandSpeed)
@@ -338,12 +358,8 @@ local function PaperDollFrame_SetAttackSpeed(statFrame, unit)
 	statFrame:Show()
 end
 
-local function PaperDollFrame_SetAttackPower(statFrame, unit)
-	if ( not unit ) then
-		unit = "player"
-	end
-	
-	local base, posBuff, negBuff = UnitAttackPower(unit)
+function BCS:SetAttackPower(statFrame)	
+	local base, posBuff, negBuff = UnitAttackPower("player")
 
 	local frame = statFrame 
 	local text = getglobal(statFrame:GetName() .. "StatText")
@@ -355,7 +371,7 @@ local function PaperDollFrame_SetAttackPower(statFrame, unit)
 	frame.tooltipSubtext = format(MELEE_ATTACK_POWER_TOOLTIP, max((base+posBuff+negBuff), 0)/ATTACK_POWER_MAGIC_NUMBER)
 end
 
-local function PaperDollFrame_SetRating(statFrame, ratingType)
+function BCS:SetRating(statFrame, ratingType)
 	local frame = statFrame 
 	local text = getglobal(statFrame:GetName() .. "StatText")
 	local label = getglobal(statFrame:GetName() .. "Label")
@@ -398,7 +414,7 @@ local function PaperDollFrame_SetRating(statFrame, ratingType)
 	end
 end
 
-local function PaperDollFrame_SetMeleeCritChance(statFrame)
+function BCS:SetMeleeCritChance(statFrame)
 	local frame = statFrame 
 	local text = getglobal(statFrame:GetName() .. "StatText")
 	local label = getglobal(statFrame:GetName() .. "Label")
@@ -407,7 +423,7 @@ local function PaperDollFrame_SetMeleeCritChance(statFrame)
 	text:SetText(format("%.2f%%", BCS:GetCritChance()))
 end
 
-local function PaperDollFrame_SetSpellCritChance(statFrame)
+function BCS:SetSpellCritChance(statFrame)
 	local frame = statFrame 
 	local text = getglobal(statFrame:GetName() .. "StatText")
 	local label = getglobal(statFrame:GetName() .. "Label")
@@ -416,7 +432,7 @@ local function PaperDollFrame_SetSpellCritChance(statFrame)
 	text:SetText(format("%.2f%%", BCS:GetSpellCritChance()))
 end
 
-local function PaperDollFrame_SetRangedCritChance(statFrame)
+function BCS:SetRangedCritChance(statFrame)
 	local frame = statFrame 
 	local text = getglobal(statFrame:GetName() .. "StatText")
 	local label = getglobal(statFrame:GetName() .. "Label")
@@ -425,7 +441,7 @@ local function PaperDollFrame_SetRangedCritChance(statFrame)
 	text:SetText(format("%.2f%%", BCS:GetRangedCritChance()))
 end
 
-local function PaperDollFrame_SetManaRegen(statFrame)
+function BCS:SetManaRegen(statFrame)
 	local frame = statFrame 
 	local text = getglobal(statFrame:GetName() .. "StatText")
 	local label = getglobal(statFrame:GetName() .. "Label")
@@ -434,7 +450,7 @@ local function PaperDollFrame_SetManaRegen(statFrame)
 	text:SetText(format("%d", BCS:GetManaRegen()))
 end
 
-local function PaperDollFrame_SetDodge(statFrame)
+function BCS:SetDodge(statFrame)
 	local frame = statFrame 
 	local text = getglobal(statFrame:GetName() .. "StatText")
 	local label = getglobal(statFrame:GetName() .. "Label")
@@ -443,7 +459,7 @@ local function PaperDollFrame_SetDodge(statFrame)
 	text:SetText(format("%.2f%%", GetDodgeChance()))
 end
 
-local function PaperDollFrame_SetParry(statFrame)
+function BCS:SetParry(statFrame)
 	local frame = statFrame 
 	local text = getglobal(statFrame:GetName() .. "StatText")
 	local label = getglobal(statFrame:GetName() .. "Label")
@@ -452,7 +468,7 @@ local function PaperDollFrame_SetParry(statFrame)
 	text:SetText(format("%.2f%%", GetParryChance()))
 end
 
-local function PaperDollFrame_SetBlock(statFrame)
+function BCS:SetBlock(statFrame)
 	local frame = statFrame 
 	local text = getglobal(statFrame:GetName() .. "StatText")
 	local label = getglobal(statFrame:GetName() .. "Label")
@@ -461,11 +477,8 @@ local function PaperDollFrame_SetBlock(statFrame)
 	text:SetText(format("%.2f%%", GetBlockChance()))
 end
 
-local function PaperDollFrame_SetDefense(statFrame, unit)
-	if ( not unit ) then
-		unit = "player"
-	end
-	local base, modifier = UnitDefense(unit)
+function BCS:SetDefense(statFrame)
+	local base, modifier = UnitDefense("player")
 
 	local frame = statFrame
 	local label = getglobal(statFrame:GetName() .. "Label")
@@ -483,12 +496,7 @@ local function PaperDollFrame_SetDefense(statFrame, unit)
 	PaperDollFormatStat(DEFENSE_COLON, base, posBuff, negBuff, frame, text)
 end
 
-local function PaperDollFrame_SetRangedDamage(statFrame, unit)
-	if ( not unit ) then
-		unit = "player"
-	elseif ( unit == "pet" ) then
-		return
-	end
+function BCS:SetRangedDamage(statFrame)
 
 	local damageText = getglobal(statFrame:GetName() .. "StatText")
 	local damageFrame = statFrame
@@ -505,7 +513,7 @@ local function PaperDollFrame_SetRangedDamage(statFrame, unit)
 		return
 	end
 
-	local rangedAttackSpeed, minDamage, maxDamage, physicalBonusPos, physicalBonusNeg, percent = UnitRangedDamage(unit)
+	local rangedAttackSpeed, minDamage, maxDamage, physicalBonusPos, physicalBonusNeg, percent = UnitRangedDamage("player")
 	local displayMin = max(floor(minDamage),1)
 	local displayMax = max(ceil(maxDamage),1)
 
@@ -556,12 +564,7 @@ local function PaperDollFrame_SetRangedDamage(statFrame, unit)
 	damageFrame.dps = damagePerSecond
 end
 
-local function PaperDollFrame_SetRangedAttackSpeed(startFrame, unit)
-	if ( not unit ) then
-		unit = "player"
-	elseif ( unit == "pet" ) then
-		return
-	end
+function BCS:SetRangedAttackSpeed(startFrame)
 
 	local damageText = getglobal(startFrame:GetName() .. "StatText")
 	local damageFrame = startFrame
@@ -573,7 +576,7 @@ local function PaperDollFrame_SetRangedAttackSpeed(startFrame, unit)
 		return
 	end
 
-	local rangedAttackSpeed, minDamage, maxDamage, physicalBonusPos, physicalBonusNeg, percent = UnitRangedDamage(unit)
+	local rangedAttackSpeed, minDamage, maxDamage, physicalBonusPos, physicalBonusNeg, percent = UnitRangedDamage("player")
 	local displayMin = max(floor(minDamage),1)
 	local displayMax = max(ceil(maxDamage),1)
 
@@ -627,12 +630,7 @@ local function PaperDollFrame_SetRangedAttackSpeed(startFrame, unit)
 	damageFrame.dps = damagePerSecond
 end
 
-local function PaperDollFrame_SetRangedAttackPower(statFrame, unit)
-	if ( not unit ) then
-		unit = "player"
-	elseif ( unit == "pet" ) then
-		return
-	end
+function BCS:SetRangedAttackPower(statFrame)
 	local frame = statFrame 
 	local text = getglobal(statFrame:GetName() .. "StatText")
 	
@@ -648,7 +646,7 @@ local function PaperDollFrame_SetRangedAttackPower(statFrame, unit)
 		return
 	end
 
-	local base, posBuff, negBuff = UnitRangedAttackPower(unit)
+	local base, posBuff, negBuff = UnitRangedAttackPower("player")
 	PaperDollFormatStat(RANGED_ATTACK_POWER, base, posBuff, negBuff, frame, text)
 	frame.tooltipSubtext = format(RANGED_ATTACK_POWER_TOOLTIP, base/ATTACK_POWER_MAGIC_NUMBER)
 end
@@ -674,25 +672,25 @@ function BCS:UpdatePaperdollStats(prefix, index)
 	stat6:Show()
 
 	if ( index == "PLAYERSTAT_BASE_STATS" ) then
-		BCS:PaperDollFrame_SetStat(stat1, 1)
-		BCS:PaperDollFrame_SetStat(stat2, 2)
-		BCS:PaperDollFrame_SetStat(stat3, 3)
-		BCS:PaperDollFrame_SetStat(stat4, 4)
-		BCS:PaperDollFrame_SetStat(stat5, 5)
-		BCS:PaperDollFrame_SetArmor(stat6)
+		BCS:SetStat(stat1, 1)
+		BCS:SetStat(stat2, 2)
+		BCS:SetStat(stat3, 3)
+		BCS:SetStat(stat4, 4)
+		BCS:SetStat(stat5, 5)
+		BCS:SetArmor(stat6)
 	elseif ( index == "PLAYERSTAT_MELEE_COMBAT" ) then
-		PaperDollFrame_SetDamage(stat1)
-		PaperDollFrame_SetAttackSpeed(stat2)
-		PaperDollFrame_SetAttackPower(stat3)
-		PaperDollFrame_SetRating(stat4, "MELEE")
-		PaperDollFrame_SetMeleeCritChance(stat5)
+		BCS:SetDamage(stat1)
+		BCS:SetAttackSpeed(stat2)
+		BCS:SetAttackPower(stat3)
+		BCS:SetRating(stat4, "MELEE")
+		BCS:SetMeleeCritChance(stat5)
 		stat6:Hide()
 	elseif ( index == "PLAYERSTAT_RANGED_COMBAT" ) then
-		PaperDollFrame_SetRangedDamage(stat1)
-		PaperDollFrame_SetRangedAttackSpeed(stat2)
-		PaperDollFrame_SetRangedAttackPower(stat3)
-		PaperDollFrame_SetRating(stat4, "RANGED")
-		PaperDollFrame_SetRangedCritChance(stat5)
+		BCS:SetRangedDamage(stat1)
+		BCS:SetRangedAttackSpeed(stat2)
+		BCS:SetRangedAttackPower(stat3)
+		BCS:SetRating(stat4, "RANGED")
+		BCS:SetRangedCritChance(stat5)
 		stat6:Hide()
 	elseif ( index == "PLAYERSTAT_SPELL_COMBAT" ) then
 		--PaperDollFrame_SetSpellBonusDamage(stat1);
@@ -703,19 +701,59 @@ function BCS:UpdatePaperdollStats(prefix, index)
 		--stat4:SetScript("OnEnter", CharacterSpellCritChance_OnEnter);
 		--PaperDollFrame_SetSpellHaste(stat5);
 		--PaperDollFrame_SetManaRegen(stat6);
-		PaperDollFrame_SetRating(stat1, "SPELL")
-		PaperDollFrame_SetSpellCritChance(stat2)
-		PaperDollFrame_SetManaRegen(stat3)
+		BCS:SetRating(stat1, "SPELL")
+		BCS:SetSpellCritChance(stat2)
+		BCS:SetManaRegen(stat3)
 		stat4:Hide()
 		stat5:Hide()
 		stat6:Hide()
 	elseif ( index == "PLAYERSTAT_DEFENSES" ) then
-		BCS:PaperDollFrame_SetArmor(stat1)
-		PaperDollFrame_SetDefense(stat2)
-		PaperDollFrame_SetDodge(stat3)
-		PaperDollFrame_SetParry(stat4)
-		PaperDollFrame_SetBlock(stat5)
+		BCS:SetArmor(stat1)
+		BCS:SetDefense(stat2)
+		BCS:SetDodge(stat3)
+		BCS:SetParry(stat4)
+		BCS:SetBlock(stat5)
 		stat6:Hide()
+	end
+end
+
+local function PlayerStatFrameLeftDropDown_OnClick()
+	UIDropDownMenu_SetSelectedValue(getglobal(this.owner), this.value)
+	IndexLeft = this.value
+	BCSConfig["DropdownLeft"] = IndexLeft
+	BCS:UpdatePaperdollStats("PlayerStatFrameLeft", this.value)
+end
+
+local function PlayerStatFrameRightDropDown_OnClick()
+	UIDropDownMenu_SetSelectedValue(getglobal(this.owner), this.value)
+	IndexRight = this.value
+	BCSConfig["DropdownRight"] = IndexRight
+	BCS:UpdatePaperdollStats("PlayerStatFrameRight", this.value)
+end
+
+local function PlayerStatFrameLeftDropDown_Initialize()
+	local info = {}
+	local checked = nil
+	for i=1, getn(BCS.PLAYERSTAT_DROPDOWN_OPTIONS) do
+		info.text = BCS.L[BCS.PLAYERSTAT_DROPDOWN_OPTIONS[i]]
+		info.func = PlayerStatFrameLeftDropDown_OnClick
+		info.value = BCS.PLAYERSTAT_DROPDOWN_OPTIONS[i]
+		info.checked = checked
+		info.owner = UIDROPDOWNMENU_OPEN_MENU
+		UIDropDownMenu_AddButton(info)
+	end
+end
+
+local function PlayerStatFrameRightDropDown_Initialize()
+	local info = {}
+	local checked = nil
+	for i=1, getn(BCS.PLAYERSTAT_DROPDOWN_OPTIONS) do
+		info.text = BCS.L[BCS.PLAYERSTAT_DROPDOWN_OPTIONS[i]]
+		info.func = PlayerStatFrameRightDropDown_OnClick
+		info.value = BCS.PLAYERSTAT_DROPDOWN_OPTIONS[i]
+		info.checked = checked
+		info.owner = UIDROPDOWNMENU_OPEN_MENU
+		UIDropDownMenu_AddButton(info)
 	end
 end
 
@@ -733,44 +771,4 @@ function PlayerStatFrameRightDropDown_OnLoad()
 	UIDropDownMenu_Initialize(this, PlayerStatFrameRightDropDown_Initialize)
 	UIDropDownMenu_SetWidth(99, this)
 	UIDropDownMenu_JustifyText("LEFT")
-end
-
-function PlayerStatFrameLeftDropDown_Initialize()
-	local info = {}
-	local checked = nil
-	for i=1, getn(BCS.PLAYERSTAT_DROPDOWN_OPTIONS) do
-		info.text = BCS.L[BCS.PLAYERSTAT_DROPDOWN_OPTIONS[i]]
-		info.func = PlayerStatFrameLeftDropDown_OnClick
-		info.value = BCS.PLAYERSTAT_DROPDOWN_OPTIONS[i]
-		info.checked = checked
-		info.owner = UIDROPDOWNMENU_OPEN_MENU
-		UIDropDownMenu_AddButton(info)
-	end
-end
-
-function PlayerStatFrameRightDropDown_Initialize()
-	local info = {}
-	local checked = nil
-	for i=1, getn(BCS.PLAYERSTAT_DROPDOWN_OPTIONS) do
-		info.text = BCS.L[BCS.PLAYERSTAT_DROPDOWN_OPTIONS[i]]
-		info.func = PlayerStatFrameRightDropDown_OnClick
-		info.value = BCS.PLAYERSTAT_DROPDOWN_OPTIONS[i]
-		info.checked = checked
-		info.owner = UIDROPDOWNMENU_OPEN_MENU
-		UIDropDownMenu_AddButton(info)
-	end
-end
-
-function PlayerStatFrameLeftDropDown_OnClick()
-	UIDropDownMenu_SetSelectedValue(getglobal(this.owner), this.value)
-	IndexLeft = this.value
-	BCSConfig["DropdownLeft"] = IndexLeft
-	BCS:UpdatePaperdollStats("PlayerStatFrameLeft", this.value)
-end
-
-function PlayerStatFrameRightDropDown_OnClick()
-	UIDropDownMenu_SetSelectedValue(getglobal(this.owner), this.value)
-	IndexRight = this.value
-	BCSConfig["DropdownRight"] = IndexRight
-	BCS:UpdatePaperdollStats("PlayerStatFrameRight", this.value)
 end

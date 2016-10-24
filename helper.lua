@@ -6,6 +6,9 @@ BCS_Tooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
 
 local L = BCS["L"]
 
+local strfind = strfind
+local tonumber = tonumber
+
 local Cache_GetHitRating_Tab, Cache_GetHitRating_Talent
 function BCS:GetHitRating()
 	local hit = 0;
@@ -19,7 +22,7 @@ function BCS:GetHitRating()
 			for line=1, MAX_LINES do
 				local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
 				if left:GetText() then
-					local _,_, value = string.find(left:GetText(), L["Equip: Improves your chance to hit by (%d)%%."])
+					local _,_, value = strfind(left:GetText(), L["Equip: Improves your chance to hit by (%d)%%."])
 					if value then
 						hit = hit + tonumber(value)
 						line = MAX_LINES
@@ -40,7 +43,7 @@ function BCS:GetHitRating()
 		for line=1, MAX_LINES do
 			local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
 			if left:GetText() then
-				local _,_, value = string.find(left:GetText(), L["Increases your chance to hit with melee weapons by (%d)%%."])
+				local _,_, value = strfind(left:GetText(), L["Increases your chance to hit with melee weapons by (%d)%%."])
 				local name, iconTexture, tier, column, rank, maxRank, isExceptional, meetsPrereq = GetTalentInfo(Cache_GetHitRating_Tab, Cache_GetHitRating_Talent)
 				if value and rank > 0 then
 					hit = hit + tonumber(value)
@@ -62,7 +65,7 @@ function BCS:GetHitRating()
 			for line=1, MAX_LINES do
 				local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
 				if left:GetText() then
-					local _,_, value = string.find(left:GetText(), L["Increases your chance to hit with melee weapons by (%d)%%."])
+					local _,_, value = strfind(left:GetText(), L["Increases your chance to hit with melee weapons by (%d)%%."])
 					local name, iconTexture, tier, column, rank, maxRank, isExceptional, meetsPrereq = GetTalentInfo(tab, talent)
 					if value and rank > 0 then
 						hit = hit + tonumber(value)
@@ -96,14 +99,14 @@ function BCS:GetSpellHitRating()
 			
 			if left:GetText() then
 				
-				local _,_, value = string.find(left:GetText(), L["Equip: Improves your chance to hit with spells by (%d)%%."])
+				local _,_, value = strfind(left:GetText(), L["Equip: Improves your chance to hit with spells by (%d)%%."])
 				if value then
 					hit = hit + tonumber(value)
 				end
 			end
 			
 			if right:GetText() then
-				local _,_, value = string.find(right:GetText(), L["Equip: Improves your chance to hit with spells by (%d)%%."])
+				local _,_, value = strfind(right:GetText(), L["Equip: Improves your chance to hit with spells by (%d)%%."])
 				if value then
 					hit = hit + tonumber(value)
 				end
@@ -125,7 +128,7 @@ function BCS:GetCritChance()
 		BCS_Tooltip:SetSpell(Cache_GetCritChance_SpellID, Cache_GetCritChance_BookType)
 		local left = getglobal(BCS_Prefix .. "TextLeft" .. Cache_GetCritChance_Line)
 		if left:GetText() then
-			local _,_, value = string.find(left:GetText(), L["([%d.]+)%% chance to crit"])
+			local _,_, value = strfind(left:GetText(), L["([%d.]+)%% chance to crit"])
 			if value then
 				crit = crit + tonumber(value)
 			end
@@ -149,7 +152,7 @@ function BCS:GetCritChance()
 			for line=1, MAX_LINES do
 				local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
 				if left:GetText() then
-					local _,_, value = string.find(left:GetText(), L["([%d.]+)%% chance to crit"])
+					local _,_, value = strfind(left:GetText(), L["([%d.]+)%% chance to crit"])
 					if value then
 						crit = crit + tonumber(value)
 						
@@ -179,7 +182,7 @@ function BCS:GetRangedCritChance()
 		local left = getglobal(BCS_Prefix .. "TextLeft" .. Cache_GetRangedCritChance_Line)
 		
 		if left:GetText() then
-			local _,_, value = string.find(left:GetText(), L["Increases your critical strike chance with ranged weapons by (%d)%%."])
+			local _,_, value = strfind(left:GetText(), L["Increases your critical strike chance with ranged weapons by (%d)%%."])
 			local name, iconTexture, tier, column, rank, maxRank, isExceptional, meetsPrereq = GetTalentInfo(Cache_GetRangedCritChance_Tab, Cache_GetRangedCritChance_Talent)
 			if value and rank > 0 then
 				crit = crit + tonumber(value)
@@ -201,7 +204,7 @@ function BCS:GetRangedCritChance()
 			for line=1, MAX_LINES do
 				local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
 				if left:GetText() then
-					local _,_, value = string.find(left:GetText(), L["Increases your critical strike chance with ranged weapons by (%d)%%."])
+					local _,_, value = strfind(left:GetText(), L["Increases your critical strike chance with ranged weapons by (%d)%%."])
 					local name, iconTexture, tier, column, rank, maxRank, isExceptional, meetsPrereq = GetTalentInfo(tab, talent)
 					if value and rank > 0 then
 						crit = crit + tonumber(value)
@@ -232,14 +235,14 @@ function BCS:GetSpellCritChance()
 			local right = getglobal(BCS_Prefix .. "TextRight" .. line)
 			
 			if left:GetText() then
-				local _,_, value = string.find(left:GetText(), L["Equip: Improves your chance to get a critical strike with spells by (%d)%%."])
+				local _,_, value = strfind(left:GetText(), L["Equip: Improves your chance to get a critical strike with spells by (%d)%%."])
 				if value then
 					spellCrit = spellCrit + tonumber(value)
 				end
 			end
 			
 			if right:GetText() then
-				local _,_, value = string.find(right:GetText(), L["Equip: Improves your chance to get a critical strike with spells by (%d)%%."])
+				local _,_, value = strfind(right:GetText(), L["Equip: Improves your chance to get a critical strike with spells by (%d)%%."])
 				if value then
 					spellCrit = spellCrit + tonumber(value)
 				end
