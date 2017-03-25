@@ -13,6 +13,14 @@ BCS.PLAYERSTAT_DROPDOWN_OPTIONS = {
 	"PLAYERSTAT_DEFENSES",
 }
 
+BCS.MELEEHIT = {
+	["ROGUE"] = {
+		5, -- pvp
+		8, -- yellow cap
+		24.6, -- white cap
+	},
+}
+
 BCS.PaperDollFrame = PaperDollFrame
 
 BCS.Debug = false
@@ -59,6 +67,9 @@ function BCS:OnLoad()
 	self.Frame:RegisterEvent("UNIT_INVENTORY_CHANGED") -- fires when equipment changes
 	self.Frame:RegisterEvent("CHARACTER_POINTS_CHANGED") -- fires when learning talent
 	self.Frame:RegisterEvent("PLAYER_AURAS_CHANGED") -- buffs/warrior stances
+	
+	local _, classFileName = UnitClass("Player")
+	self.playerClass = strupper(classFileName)
 end
 
 function BCS:OnEvent()
@@ -383,14 +394,23 @@ function BCS:SetRating(statFrame, ratingType)
 	
 	if ratingType == "MELEE" then
 		local rating = BCS:GetHitRating()
-		if rating < 5 then
-			rating = colorNeg .. rating .. "%|r"
-		elseif rating >= 8 then
-			rating = colorPos .. rating .. "%|r"
+		if BCS.MELEEHIT[BCS.playerClass] then
+			if rating < BCS.MELEEHIT[BCS.playerClass][1] then
+				rating = colorNeg .. rating .. "%|r"
+			elseif rating >= BCS.MELEEHIT[BCS.playerClass][2] then
+				rating = colorPos .. rating .. "%|r"
+			else
+				rating = rating .. "%"
+			end
 		else
 			rating = rating .. "%"
 		end
 		text:SetText(rating)
+		
+		frame.tooltip = L.MELEE_HIT_TOOLTIP
+		if L[BCS.playerClass .. "_MELEE_HIT_TOOLTIP"] then
+			frame.tooltipSubtext = L[BCS.playerClass .. "_MELEE_HIT_TOOLTIP"]
+		end
 	elseif ratingType == "RANGED" then
 		local rating = BCS:GetHitRating()
 		if rating < 5 then
@@ -412,6 +432,16 @@ function BCS:SetRating(statFrame, ratingType)
 		end
 		text:SetText(rating)
 	end
+	
+	frame:SetScript("OnEnter", function()
+		GameTooltip:SetOwner(this, "ANCHOR_RIGHT")
+		GameTooltip:SetText(this.tooltip)
+		GameTooltip:AddLine(this.tooltipSubtext, NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, 1)
+		GameTooltip:Show()
+	end)
+	frame:SetScript("OnLeave", function()
+		GameTooltip:Hide()
+	end)
 end
 
 function BCS:SetMeleeCritChance(statFrame)
@@ -497,9 +527,11 @@ function BCS:SetDefense(statFrame)
 end
 
 function BCS:SetRangedDamage(statFrame)
-
+	local label = getglobal(statFrame:GetName() .. "Label")
 	local damageText = getglobal(statFrame:GetName() .. "StatText")
 	local damageFrame = statFrame
+	
+	label:SetText(TEXT(DAMAGE_COLON))
 	
 	damageFrame:SetScript("OnEnter", CharacterRangedDamageFrame_OnEnter)
 	damageFrame:SetScript("OnLeave", function()
@@ -565,9 +597,11 @@ function BCS:SetRangedDamage(statFrame)
 end
 
 function BCS:SetRangedAttackSpeed(startFrame)
-
+	local label = getglobal(startFrame:GetName() .. "Label")
 	local damageText = getglobal(startFrame:GetName() .. "StatText")
 	local damageFrame = startFrame
+	
+	label:SetText(TEXT(SPEED)..":")
 
 	-- If no ranged attack then set to n/a
 	if ( PaperDollFrame.noRanged ) then
@@ -633,6 +667,9 @@ end
 function BCS:SetRangedAttackPower(statFrame)
 	local frame = statFrame 
 	local text = getglobal(statFrame:GetName() .. "StatText")
+	local label = getglobal(statFrame:GetName() .. "Label")
+	
+	label:SetText(TEXT(ATTACK_POWER_COLON))
 	
 	-- If no ranged attack then set to n/a
 	if ( PaperDollFrame.noRanged ) then

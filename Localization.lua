@@ -8,6 +8,14 @@ BCS["L"] = {
 	["Equip: Improves your chance to get a critical strike with spells by (%d)%%."] = "Equip: Improves your chance to get a critical strike with spells by (%d)%%.",
 	["Equip: Improves your chance to hit with spells by (%d)%%."] = "Equip: Improves your chance to hit with spells by (%d)%%.",
 	["Increases your critical strike chance with ranged weapons by (%d)%%."] = "Increases your critical strike chance with ranged weapons by (%d)%%.",
+	
+	["MELEE_HIT_TOOLTIP"] = [[|cffffffffHit|r
+	Result of an attack made with 
+	melee or ranged weapons.]],
+	["ROGUE_MELEE_HIT_TOOLTIP"] = [[
++5% hit to always hit enemy players.
++8% hit to always hit with your special abilities against a raid boss.
++24.6% hit to always hit a raid boss.]],
 
 	PLAYERSTAT_BASE_STATS = "Base Stats",
 	PLAYERSTAT_DEFENSES = "Defenses",
