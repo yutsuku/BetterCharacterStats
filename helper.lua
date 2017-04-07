@@ -91,28 +91,34 @@ function BCS:GetSpellHitRating()
 	local MAX_INVENTORY_SLOTS = 19
 	
 	for slot=0, MAX_INVENTORY_SLOTS do
-		BCS_Tooltip:SetInventoryItem("player", slot)
+		local hasItem = BCS_Tooltip:SetInventoryItem("player", slot)
 		
-		for line=1, BCS_Tooltip:NumLines() do
-			local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
-			local right = getglobal(BCS_Prefix .. "TextRight" .. line)
+		if hasItem then
+			local MAX_LINES = BCS_Tooltip:NumLines()
 			
-			if left:GetText() then
+			for line=1, MAX_LINES do
+				local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
+				local right = getglobal(BCS_Prefix .. "TextRight" .. line)
 				
-				local _,_, value = strfind(left:GetText(), L["Equip: Improves your chance to hit with spells by (%d)%%."])
-				if value then
-					hit = hit + tonumber(value)
+				if left:GetText() then
+					
+					local _,_, value = strfind(left:GetText(), L["Equip: Improves your chance to hit with spells by (%d)%%."])
+					if value then
+						hit = hit + tonumber(value)
+						line = MAX_LINES
+					end
+				end
+				
+				if right:GetText() then
+					local _,_, value = strfind(right:GetText(), L["Equip: Improves your chance to hit with spells by (%d)%%."])
+					if value then
+						hit = hit + tonumber(value)
+						line = MAX_LINES
+					end
 				end
 			end
-			
-			if right:GetText() then
-				local _,_, value = strfind(right:GetText(), L["Equip: Improves your chance to hit with spells by (%d)%%."])
-				if value then
-					hit = hit + tonumber(value)
-				end
-			end
-		end
 		
+		end
 	end
 	
 	return hit
