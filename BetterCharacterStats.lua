@@ -21,6 +21,10 @@ BCS.MELEEHIT = {
 	},
 }
 
+BCS.SPELLHIT = {
+	-- soon(tm)
+}
+
 BCS.PaperDollFrame = PaperDollFrame
 
 BCS.Debug = false
@@ -413,35 +417,56 @@ function BCS:SetRating(statFrame, ratingType)
 		end
 	elseif ratingType == "RANGED" then
 		local rating = BCS:GetHitRating()
-		if rating < 5 then
-			rating = colorNeg .. rating .. "%|r"
-		elseif rating >= 8 then
-			rating = colorPos .. rating .. "%|r"
+		if BCS.MELEEHIT[BCS.playerClass] then
+			if rating < BCS.MELEEHIT[BCS.playerClass][1] then
+				rating = colorNeg .. rating .. "%|r"
+			elseif rating >= BCS.MELEEHIT[BCS.playerClass][2] then
+				rating = colorPos .. rating .. "%|r"
+			else
+				rating = rating .. "%"
+			end
 		else
 			rating = rating .. "%"
 		end
 		text:SetText(rating)
+		
+		frame.tooltip = L.MELEE_HIT_TOOLTIP
+		if L[BCS.playerClass .. "_MELEE_HIT_TOOLTIP"] then
+			frame.tooltipSubtext = L[BCS.playerClass .. "_MELEE_HIT_TOOLTIP"]
+		end
 	elseif ratingType == "SPELL" then
 		local rating = BCS:GetSpellHitRating()
-		if rating < 5 then
-			rating = colorNeg .. rating .. "%|r"
-		elseif rating >= 8 then
-			rating = colorPos .. rating .. "%|r"
+		if BCS.SPELLHIT[BCS.playerClass] then
+			if rating < BCS.SPELLHIT[BCS.playerClass][1] then
+				rating = colorNeg .. rating .. "%|r"
+			elseif rating >= BCS.SPELLHIT[BCS.playerClass][2] then
+				rating = colorPos .. rating .. "%|r"
+			else
+				rating = rating .. "%"
+			end
 		else
 			rating = rating .. "%"
 		end
 		text:SetText(rating)
+		
+		frame.tooltip = L.SPELL_HIT_TOOLTIP
+		if L[BCS.playerClass .. "_SPELL_HIT_TOOLTIP"] then
+			frame.tooltipSubtext = L[BCS.playerClass .. "_SPELL_HIT_TOOLTIP"]
+		end
 	end
 	
-	frame:SetScript("OnEnter", function()
-		GameTooltip:SetOwner(this, "ANCHOR_RIGHT")
-		GameTooltip:SetText(this.tooltip)
-		GameTooltip:AddLine(this.tooltipSubtext, NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, 1)
-		GameTooltip:Show()
-	end)
-	frame:SetScript("OnLeave", function()
-		GameTooltip:Hide()
-	end)
+	if frame.tooltip then
+		frame:SetScript("OnEnter", function()
+			GameTooltip:SetOwner(this, "ANCHOR_RIGHT")
+			GameTooltip:SetText(this.tooltip)
+			GameTooltip:AddLine(this.tooltipSubtext, NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, 1)
+			GameTooltip:Show()
+		end)
+		frame:SetScript("OnLeave", function()
+			GameTooltip:Hide()
+		end)
+	end
+	
 end
 
 function BCS:SetMeleeCritChance(statFrame)
@@ -703,6 +728,14 @@ function BCS:UpdatePaperdollStats(prefix, index)
 	stat4:SetScript("OnEnter", nil)
 	stat5:SetScript("OnEnter", nil)
 	stat6:SetScript("OnEnter", nil)
+	
+	stat1.tooltip = nil
+	stat2.tooltip = nil
+	stat3.tooltip = nil
+	stat4.tooltip = nil
+	stat4.tooltip = nil
+	stat5.tooltip = nil
+	stat6.tooltip = nil
 
 	stat4:Show()
 	stat5:Show()

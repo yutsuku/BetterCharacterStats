@@ -12,6 +12,11 @@ BCS["L"] = {
 	["MELEE_HIT_TOOLTIP"] = [[|cffffffffHit|r
 	Result of an attack made with 
 	melee or ranged weapons.]],
+	
+	["SPELL_HIT_TOOLTIP"] = [[|cffffffffHit|r
+	Result of an attack made with 
+	spells.]],
+	
 	["ROGUE_MELEE_HIT_TOOLTIP"] = [[
 +5% hit to always hit enemy players.
 +8% hit to always hit with your special abilities against a raid boss.
