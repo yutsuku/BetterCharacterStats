@@ -2,6 +2,7 @@ BCS = BCS or {}
 
 BCS["L"] = {
 
+	["^Set: Improves your chance to hit by (%d)%%."] = "^Set: Improves your chance to hit by (%d)%%.",
 	["Equip: Improves your chance to hit by (%d)%%."] = "Equip: Improves your chance to hit by (%d)%%.",
 	["Increases your chance to hit with melee weapons by (%d)%%."] = "Increases your chance to hit with melee weapons by (%d)%%.",
 	["([%d.]+)%% chance to crit"] = "([%d.]+)%% chance to crit",
