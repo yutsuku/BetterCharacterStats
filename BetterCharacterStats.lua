@@ -10,6 +10,7 @@ BCS.PLAYERSTAT_DROPDOWN_OPTIONS = {
 	"PLAYERSTAT_MELEE_COMBAT",
 	"PLAYERSTAT_RANGED_COMBAT",
 	"PLAYERSTAT_SPELL_COMBAT",
+	"PLAYERSTAT_SPELL_SCHOOLS",
 	"PLAYERSTAT_DEFENSES",
 }
 
@@ -384,6 +385,31 @@ function BCS:SetAttackPower(statFrame)
 
 	PaperDollFormatStat(MELEE_ATTACK_POWER, base, posBuff, negBuff, frame, text)
 	frame.tooltipSubtext = format(MELEE_ATTACK_POWER_TOOLTIP, max((base+posBuff+negBuff), 0)/ATTACK_POWER_MAGIC_NUMBER)
+end
+
+function BCS:SetSpellPower(statFrame, school)
+	local frame = statFrame 
+	local text = getglobal(statFrame:GetName() .. "StatText")
+	local label = getglobal(statFrame:GetName() .. "Label")
+	
+	local colorPos = "|cff20ff20"
+	local colorNeg = "|cffff2020"
+	
+	if school then
+		label:SetText(L["SPELL_SCHOOL_"..strupper(school)])
+		local base = BCS:GetSpellPower()
+		local fromSchool = BCS:GetSpellPower(school)
+		local output = base + fromSchool
+		
+		if fromSchool > 0 then
+			output = colorPos .. output .. "|r"
+		end
+		
+		text:SetText(output)
+	else
+		label:SetText(L.SPELL_POWER_COLON)
+		text:SetText(BCS:GetSpellPower())
+	end
 end
 
 function BCS:SetRating(statFrame, ratingType)
@@ -763,20 +789,19 @@ function BCS:UpdatePaperdollStats(prefix, index)
 		BCS:SetRangedCritChance(stat5)
 		stat6:Hide()
 	elseif ( index == "PLAYERSTAT_SPELL_COMBAT" ) then
-		--PaperDollFrame_SetSpellBonusDamage(stat1);
-		--stat1:SetScript("OnEnter", CharacterSpellBonusDamage_OnEnter);
-		--PaperDollFrame_SetSpellBonusHealing(stat2);
-		--PaperDollFrame_SetRating(stat3, CR_HIT_SPELL);
-		--PaperDollFrame_SetSpellCritChance(stat4);
-		--stat4:SetScript("OnEnter", CharacterSpellCritChance_OnEnter);
-		--PaperDollFrame_SetSpellHaste(stat5);
-		--PaperDollFrame_SetManaRegen(stat6);
-		BCS:SetRating(stat1, "SPELL")
-		BCS:SetSpellCritChance(stat2)
-		BCS:SetManaRegen(stat3)
-		stat4:Hide()
+		BCS:SetSpellPower(stat1)
+		BCS:SetRating(stat2, "SPELL")
+		BCS:SetSpellCritChance(stat3)
+		BCS:SetManaRegen(stat4)
 		stat5:Hide()
 		stat6:Hide()
+	elseif ( index == "PLAYERSTAT_SPELL_SCHOOLS" ) then
+		BCS:SetSpellPower(stat1, "Arcane")
+		BCS:SetSpellPower(stat2, "Fire")
+		BCS:SetSpellPower(stat3, "Frost")
+		BCS:SetSpellPower(stat4, "Holy")
+		BCS:SetSpellPower(stat5, "Nature")
+		BCS:SetSpellPower(stat6, "Shadow")
 	elseif ( index == "PLAYERSTAT_DEFENSES" ) then
 		BCS:SetArmor(stat1)
 		BCS:SetDefense(stat2)

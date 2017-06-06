@@ -276,6 +276,62 @@ function BCS:GetSpellCritChance()
 	return spellCrit
 end
 
+function BCS:GetSpellPower(school)
+	if school then
+		if not L["Equip: Increases damage done by "..school.." spells and effects by up to (%d+)."] then return -1 end
+		local spellPower = 0;
+		local MAX_INVENTORY_SLOTS = 19
+		
+		for slot=0, MAX_INVENTORY_SLOTS do
+			local hasItem = BCS_Tooltip:SetInventoryItem("player", slot)
+			
+			if hasItem then
+				for line=1, BCS_Tooltip:NumLines() do
+					local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
+					
+					if left:GetText() then
+						local _,_, value = strfind(left:GetText(), L["Equip: Increases damage done by "..school.." spells and effects by up to (%d+)."])
+						if value then
+							BCS:Print('[GetSpellPower] found item with spell power in slot '..slot)
+							spellPower = spellPower + tonumber(value)
+						end
+					end
+				end
+			end
+			
+		end
+		
+		BCS:Print('[GetSpellPower] returning '..spellPower..' power')
+		return spellPower
+	else
+		BCS:Print('[GetSpellPower] hai')
+		local spellPower = 0;
+		local MAX_INVENTORY_SLOTS = 19
+		
+		for slot=0, MAX_INVENTORY_SLOTS do
+			local hasItem = BCS_Tooltip:SetInventoryItem("player", slot)
+			
+			if hasItem then
+				for line=1, BCS_Tooltip:NumLines() do
+					local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
+					
+					if left:GetText() then
+						local _,_, value = strfind(left:GetText(), L["Equip: Increases damage and healing done by magical spells and effects by up to (%d+)."])
+						if value then
+							BCS:Print('[GetSpellPower] found item with spell power in slot '..slot)
+							spellPower = spellPower + tonumber(value)
+						end
+					end
+				end
+			end
+			
+		end
+		
+		BCS:Print('[GetSpellPower] returning '..spellPower..' power')
+		return spellPower
+	end
+end
+
 --[[
 -- server\src\game\Object\Player.cpp
 float Player::OCTRegenMPPerSpirit()
@@ -326,7 +382,7 @@ local function GetRegenMPPerSpirit()
 	local addvalue = 0
 	
 	local stat, Spirit, posBuff, negBuff = UnitStat("player", 5)
-	local lClass, class = strupper(UnitClass("player"))
+	local lClass, class = UnitClass("player")
 	
 	if class == "DRUID" then
 		addvalue = (Spirit / 5 + 15)
@@ -345,7 +401,6 @@ local function GetRegenMPPerSpirit()
 	else
 		return addvalue
 	end
-	
 	return (addvalue / 2)
 end
 

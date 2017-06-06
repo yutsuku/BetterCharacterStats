@@ -9,6 +9,14 @@ BCS["L"] = {
 	["Equip: Improves your chance to get a critical strike with spells by (%d)%%."] = "Equip: Improves your chance to get a critical strike with spells by (%d)%%.",
 	["Equip: Improves your chance to hit with spells by (%d)%%."] = "Equip: Improves your chance to hit with spells by (%d)%%.",
 	["Increases your critical strike chance with ranged weapons by (%d)%%."] = "Increases your critical strike chance with ranged weapons by (%d)%%.",
+	["Equip: Increases damage and healing done by magical spells and effects by up to (%d+)."] = "Equip: Increases damage and healing done by magical spells and effects by up to (%d+).",
+	
+	["Equip: Increases damage done by Arcane spells and effects by up to (%d+)."] = "Equip: Increases damage done by Arcane spells and effects by up to (%d+).",
+	["Equip: Increases damage done by Fire spells and effects by up to (%d+)."] = "Equip: Increases damage done by Fire spells and effects by up to (%d+).",
+	["Equip: Increases damage done by Frost spells and effects by up to (%d+)."] = "Equip: Increases damage done by Frost spells and effects by up to (%d+).",
+	["Equip: Increases damage done by Holy spells and effects by up to (%d+)."] = "Equip: Increases damage done by Holy spells and effects by up to (%d+).",
+	["Equip: Increases damage done by Nature spells and effects by up to (%d+)."] = "Equip: Increases damage done by Nature spells and effects by up to (%d+).",
+	["Equip: Increases damage done by Shadow spells and effects by up to (%d+)."] = "Equip: Increases damage done by Shadow spells and effects by up to (%d+).",
 	
 	["MELEE_HIT_TOOLTIP"] = [[|cffffffffHit|r
 	Result of an attack made with 
@@ -28,6 +36,7 @@ BCS["L"] = {
 	PLAYERSTAT_MELEE_COMBAT = "Melee",
 	PLAYERSTAT_RANGED_COMBAT = "Ranged",
 	PLAYERSTAT_SPELL_COMBAT = "Spell",
+	PLAYERSTAT_SPELL_SCHOOLS = "Schools",
 	
 	MELEE_HIT_RATING_COLON = "Hit Rating:",
 	RANGED_HIT_RATING_COLON = "Hit Rating:",
@@ -39,5 +48,14 @@ BCS["L"] = {
 	DODGE_COLON = DODGE .. ":",
 	PARRY_COLON = PARRY .. ":",
 	BLOCK_COLON = BLOCK .. ":",
+	
+	SPELL_POWER_COLON = "Power:",
+	
+	SPELL_SCHOOL_ARCANE = "Arcane",
+	SPELL_SCHOOL_FIRE = "Fire",
+	SPELL_SCHOOL_FROST = "Frost",
+	SPELL_SCHOOL_HOLY = "Holy",
+	SPELL_SCHOOL_NATURE = "Nature",
+	SPELL_SCHOOL_SHADOW = "Shadow",
 	
 }
