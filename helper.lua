@@ -253,6 +253,24 @@ end
 function BCS:GetSpellCritChance()
 	-- school crit: most likely never
 	local spellCrit = 0;
+	local _, intelect = UnitStat("player", 4)
+	local _, class = UnitClass("player")
+	
+	-- values from theorycraft / http://wow.allakhazam.com/forum.html?forum=21&mid=1157230638252681707
+	if class == "MAGE" then
+		spellCrit = 0.2 + (intelect / 59.5)
+	elseif class == "WARLOCK" then
+		spellCrit = 1.7 + (intelect / 60.6)
+	elseif class == "PRIEST" then
+		spellCrit = 0.8 + (intelect / 59.56)
+	elseif class == "DRUID" then
+		spellCrit = 1.8 + (intelect / 60)
+	elseif class == "SHAMAN" then
+		spellCrit = 1.8 + (intelect / 59.2)
+	elseif class == "PALADIN" then
+		spellCrit = intelect / 29.5
+	end
+	
 	local MAX_INVENTORY_SLOTS = 19
 	
 	for slot=0, MAX_INVENTORY_SLOTS do
