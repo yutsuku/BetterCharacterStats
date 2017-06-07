@@ -407,8 +407,24 @@ function BCS:SetSpellPower(statFrame, school)
 		
 		text:SetText(output)
 	else
+		local power, secondaryPower, secondaryName = BCS:GetSpellPower()
+		
 		label:SetText(L.SPELL_POWER_COLON)
-		text:SetText(BCS:GetSpellPower())
+		text:SetText(power+secondaryPower)
+		
+		if secondaryPower > 0 then
+			frame.tooltip = format(L.SPELL_POWER_SECONDARY_TOOLTIP, (power+secondaryPower), power, secondaryPower, secondaryName)
+			
+			frame:SetScript("OnEnter", function()
+				GameTooltip:SetOwner(this, "ANCHOR_RIGHT")
+				GameTooltip:SetText(this.tooltip)
+				GameTooltip:Show()
+			end)
+			frame:SetScript("OnLeave", function()
+				GameTooltip:Hide()
+			end)
+		end
+		
 	end
 end
 
@@ -520,6 +536,29 @@ function BCS:SetRangedCritChance(statFrame)
 	
 	label:SetText(L.RANGED_CRIT_COLON)
 	text:SetText(format("%.2f%%", BCS:GetRangedCritChance()))
+end
+
+function BCS:SetHealing(statFrame)
+	local frame = statFrame 
+	local text = getglobal(statFrame:GetName() .. "StatText")
+	local label = getglobal(statFrame:GetName() .. "Label")
+	
+	local power = BCS:GetSpellPower()
+	local heal = BCS:GetHealingPower()
+	
+	label:SetText(L.HEAL_POWER_COLON)
+	text:SetText(power+heal)
+	
+	frame.tooltip = format(L.SPELL_HEALING_POWER_TOOLTIP, (power+heal), power, heal)
+	
+	frame:SetScript("OnEnter", function()
+		GameTooltip:SetOwner(this, "ANCHOR_RIGHT")
+		GameTooltip:SetText(this.tooltip)
+		GameTooltip:Show()
+	end)
+	frame:SetScript("OnLeave", function()
+		GameTooltip:Hide()
+	end)
 end
 
 function BCS:SetManaRegen(statFrame)
@@ -792,8 +831,8 @@ function BCS:UpdatePaperdollStats(prefix, index)
 		BCS:SetSpellPower(stat1)
 		BCS:SetRating(stat2, "SPELL")
 		BCS:SetSpellCritChance(stat3)
-		BCS:SetManaRegen(stat4)
-		stat5:Hide()
+		BCS:SetHealing(stat4)
+		BCS:SetManaRegen(stat5)
 		stat6:Hide()
 	elseif ( index == "PLAYERSTAT_SPELL_SCHOOLS" ) then
 		BCS:SetSpellPower(stat1, "Arcane")

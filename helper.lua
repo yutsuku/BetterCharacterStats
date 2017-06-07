@@ -312,6 +312,12 @@ function BCS:GetSpellPower(school)
 						if value then
 							spellPower = spellPower + tonumber(value)
 						end
+						if L[school.." Damage %+(%d+)"] then
+							_,_, value = strfind(left:GetText(), L[school.." Damage %+(%d+)"])
+							if value then
+								spellPower = spellPower + tonumber(value)
+							end
+						end
 					end
 				end
 			end
@@ -321,6 +327,12 @@ function BCS:GetSpellPower(school)
 		return spellPower
 	else
 		local spellPower = 0;
+		local arcanePower = 0;
+		local firePower = 0;
+		local frostPower = 0;
+		local holyPower = 0;
+		local naturePower = 0;
+		local shadowPower = 0;
 		local MAX_INVENTORY_SLOTS = 19
 		
 		for slot=0, MAX_INVENTORY_SLOTS do
@@ -335,14 +347,117 @@ function BCS:GetSpellPower(school)
 						if value then
 							spellPower = spellPower + tonumber(value)
 						end
+						_,_, value = strfind(left:GetText(), L["Spell Damage %+(%d+)"])
+						if value then
+							spellPower = spellPower + tonumber(value)
+						end
+						
+						_,_, value = strfind(left:GetText(), L["Equip: Increases damage done by Arcane spells and effects by up to (%d+)."])
+						if value then
+							arcanePower = arcanePower + tonumber(value)
+						end
+						
+						_,_, value = strfind(left:GetText(), L["Equip: Increases damage done by Fire spells and effects by up to (%d+)."])
+						if value then
+							firePower = firePower + tonumber(value)
+						end
+						_,_, value = strfind(left:GetText(), L["Fire Damage %+(%d+)"])
+						if value then
+							firePower = firePower + tonumber(value)
+						end
+						
+						_,_, value = strfind(left:GetText(), L["Equip: Increases damage done by Frost spells and effects by up to (%d+)."])
+						if value then
+							frostPower = frostPower + tonumber(value)
+						end
+						_,_, value = strfind(left:GetText(), L["Frost Damage %+(%d+)"])
+						if value then
+							frostPower = frostPower + tonumber(value)
+						end
+						
+						_,_, value = strfind(left:GetText(), L["Equip: Increases damage done by Holy spells and effects by up to (%d+)."])
+						if value then
+							holyPower = holyPower + tonumber(value)
+						end
+						
+						_,_, value = strfind(left:GetText(), L["Equip: Increases damage done by Nature spells and effects by up to (%d+)."])
+						if value then
+							naturePower = naturePower + tonumber(value)
+						end
+						
+						_,_, value = strfind(left:GetText(), L["Equip: Increases damage done by Shadow spells and effects by up to (%d+)."])
+						if value then
+							shadowPower = shadowPower + tonumber(value)
+						end
+						_,_, value = strfind(left:GetText(), L["Shadow Damage %+(%d+)"])
+						if value then
+							shadowPower = shadowPower + tonumber(value)
+						end
 					end
 				end
 			end
 			
 		end
 		
-		return spellPower
+		local secondaryPower = 0
+		local secondaryPowerName = ""
+		
+		if arcanePower > secondaryPower then
+			secondaryPower = arcanePower
+			secondaryPowerName = L.SPELL_SCHOOL_ARCANE
+		end
+		if firePower > secondaryPower then
+			secondaryPower = firePower
+			secondaryPowerName = L.SPELL_SCHOOL_FIRE
+		end
+		if frostPower > secondaryPower then
+			secondaryPower = frostPower
+			secondaryPowerName = L.SPELL_SCHOOL_FROST
+		end
+		if holyPower > secondaryPower then
+			secondaryPower = holyPower
+			secondaryPowerName = L.SPELL_SCHOOL_HOLY
+		end
+		if naturePower > secondaryPower then
+			secondaryPower = naturePower
+			secondaryPowerName = L.SPELL_SCHOOL_NATURE
+		end
+		if shadowPower > secondaryPower then
+			secondaryPower = shadowPower
+			secondaryPowerName = L.SPELL_SCHOOL_SHADOW
+		end
+		
+		return spellPower, secondaryPower, secondaryPowerName
 	end
+end
+
+function BCS:GetHealingPower()
+	local healPower = 0;
+	local MAX_INVENTORY_SLOTS = 19
+	
+	for slot=0, MAX_INVENTORY_SLOTS do
+		local hasItem = BCS_Tooltip:SetInventoryItem("player", slot)
+		
+		if hasItem then
+			for line=1, BCS_Tooltip:NumLines() do
+				local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
+				
+				if left:GetText() then
+					local _,_, value = strfind(left:GetText(), L["Equip: Increases healing done by spells and effects by up to (%d+)."])
+					if value then
+						healPower = healPower + tonumber(value)
+					end
+					_,_, value = strfind(left:GetText(), L["Healing Spells %+(%d+)"])
+					if value then
+						healPower = healPower + tonumber(value)
+					end
+				end
+			end
+		end
+		
+	end
+	
+	return healPower
 end
 
 --[[

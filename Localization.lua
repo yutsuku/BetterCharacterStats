@@ -9,7 +9,6 @@ BCS["L"] = {
 	["Equip: Improves your chance to get a critical strike with spells by (%d)%%."] = "Equip: Improves your chance to get a critical strike with spells by (%d)%%.",
 	["Equip: Improves your chance to hit with spells by (%d)%%."] = "Equip: Improves your chance to hit with spells by (%d)%%.",
 	["Increases your critical strike chance with ranged weapons by (%d)%%."] = "Increases your critical strike chance with ranged weapons by (%d)%%.",
-	["Equip: Increases damage and healing done by magical spells and effects by up to (%d+)."] = "Equip: Increases damage and healing done by magical spells and effects by up to (%d+).",
 	
 	["Equip: Increases damage done by Arcane spells and effects by up to (%d+)."] = "Equip: Increases damage done by Arcane spells and effects by up to (%d+).",
 	["Equip: Increases damage done by Fire spells and effects by up to (%d+)."] = "Equip: Increases damage done by Fire spells and effects by up to (%d+).",
@@ -18,6 +17,15 @@ BCS["L"] = {
 	["Equip: Increases damage done by Nature spells and effects by up to (%d+)."] = "Equip: Increases damage done by Nature spells and effects by up to (%d+).",
 	["Equip: Increases damage done by Shadow spells and effects by up to (%d+)."] = "Equip: Increases damage done by Shadow spells and effects by up to (%d+).",
 	
+	["Shadow Damage %+(%d+)"] = "Shadow Damage %+(%d+)",
+	["Spell Damage %+(%d+)"] = "Spell Damage %+(%d+)",
+	["Fire Damage %+(%d+)"] = "Fire Damage %+(%d+)",
+	["Frost Damage %+(%d+)"] = "Frost Damage %+(%d+)",
+	["Healing Spells %+(%d+)"] = "Healing Spells %+(%d+)",
+	
+	["Equip: Increases damage and healing done by magical spells and effects by up to (%d+)."] = "Equip: Increases damage and healing done by magical spells and effects by up to (%d+).",
+	["Equip: Increases healing done by spells and effects by up to (%d+)."] = "Equip: Increases healing done by spells and effects by up to (%d+).",
+	
 	["MELEE_HIT_TOOLTIP"] = [[|cffffffffHit|r
 	Result of an attack made with 
 	melee or ranged weapons.]],
@@ -25,6 +33,15 @@ BCS["L"] = {
 	["SPELL_HIT_TOOLTIP"] = [[|cffffffffHit|r
 	Result of an attack made with 
 	spells.]],
+	
+	["SPELL_POWER_TOOLTIP"] = [[|cffffffffSpell Power %d|r
+	Increases damage done by spells and effects.]],
+	
+	["SPELL_POWER_SECONDARY_TOOLTIP"] = [[|cffffffffSpell Power %d (%d|cff20ff20+%d %s|r|cffffffff)|r
+	Increases damage done by spells and effects.]],
+	
+	["SPELL_HEALING_POWER_TOOLTIP"] = [[|cffffffffHealing Power %d (%d|cff20ff20+%d|r|cffffffff)|r
+	Increases healing done by spells and effects.]],
 	
 	["ROGUE_MELEE_HIT_TOOLTIP"] = [[
 +5% hit to always hit enemy players.
@@ -45,6 +62,7 @@ BCS["L"] = {
 	RANGED_CRIT_COLON = "Crit Chance:",
 	SPELL_CRIT_COLON = "Crit Chance:",
 	MANA_REGEN_COLON = "Mana regen:",
+	HEAL_POWER_COLON = "Healing:",
 	DODGE_COLON = DODGE .. ":",
 	PARRY_COLON = PARRY .. ":",
 	BLOCK_COLON = BLOCK .. ":",
