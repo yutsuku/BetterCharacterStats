@@ -310,7 +310,6 @@ function BCS:GetSpellPower(school)
 					if left:GetText() then
 						local _,_, value = strfind(left:GetText(), L["Equip: Increases damage done by "..school.." spells and effects by up to (%d+)."])
 						if value then
-							BCS:Print('[GetSpellPower] found item with spell power in slot '..slot)
 							spellPower = spellPower + tonumber(value)
 						end
 					end
@@ -319,10 +318,8 @@ function BCS:GetSpellPower(school)
 			
 		end
 		
-		BCS:Print('[GetSpellPower] returning '..spellPower..' power')
 		return spellPower
 	else
-		BCS:Print('[GetSpellPower] hai')
 		local spellPower = 0;
 		local MAX_INVENTORY_SLOTS = 19
 		
@@ -336,7 +333,6 @@ function BCS:GetSpellPower(school)
 					if left:GetText() then
 						local _,_, value = strfind(left:GetText(), L["Equip: Increases damage and healing done by magical spells and effects by up to (%d+)."])
 						if value then
-							BCS:Print('[GetSpellPower] found item with spell power in slot '..slot)
 							spellPower = spellPower + tonumber(value)
 						end
 					end
@@ -345,7 +341,6 @@ function BCS:GetSpellPower(school)
 			
 		end
 		
-		BCS:Print('[GetSpellPower] returning '..spellPower..' power')
 		return spellPower
 	end
 end
