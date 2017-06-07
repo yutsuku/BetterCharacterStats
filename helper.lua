@@ -8,6 +8,7 @@ local L = BCS["L"]
 
 local strfind = strfind
 local tonumber = tonumber
+local tinsert = tinsert
 
 local function tContains(table, item)
 	local index = 1
@@ -45,7 +46,7 @@ function BCS:GetHitRating()
 					end
 					_,_, value = strfind(left:GetText(), L["^Set: Improves your chance to hit by (%d)%%."])
 					if value and SET_NAME and not tContains(Hit_Set_Bonus, SET_NAME) then
-						table.insert(Hit_Set_Bonus, SET_NAME)
+						tinsert(Hit_Set_Bonus, SET_NAME)
 						hit = hit + tonumber(value)
 						line = MAX_LINES
 					end
@@ -120,19 +121,10 @@ function BCS:GetSpellHitRating()
 			
 			for line=1, MAX_LINES do
 				local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
-				local right = getglobal(BCS_Prefix .. "TextRight" .. line)
 				
 				if left:GetText() then
 					
 					local _,_, value = strfind(left:GetText(), L["Equip: Improves your chance to hit with spells by (%d)%%."])
-					if value then
-						hit = hit + tonumber(value)
-						line = MAX_LINES
-					end
-				end
-				
-				if right:GetText() then
-					local _,_, value = strfind(right:GetText(), L["Equip: Improves your chance to hit with spells by (%d)%%."])
 					if value then
 						hit = hit + tonumber(value)
 						line = MAX_LINES
@@ -252,6 +244,7 @@ end
 
 function BCS:GetSpellCritChance()
 	-- school crit: most likely never
+	local Crit_Set_Bonus = {}
 	local spellCrit = 0;
 	local _, intelect = UnitStat("player", 4)
 	local _, class = UnitClass("player")
@@ -277,14 +270,28 @@ function BCS:GetSpellCritChance()
 		local hasItem = BCS_Tooltip:SetInventoryItem("player", slot)
 		
 		if hasItem then
+			local SET_NAME = nil
+			
 			for line=1, BCS_Tooltip:NumLines() do
 				local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
-				
+
 				if left:GetText() then
 					local _,_, value = strfind(left:GetText(), L["Equip: Improves your chance to get a critical strike with spells by (%d)%%."])
 					if value then
 						spellCrit = spellCrit + tonumber(value)
 					end
+					
+					_,_, value = strfind(left:GetText(), "(.+) %(%d/%d%)")
+					if value then
+						SET_NAME = value
+					end
+
+					_, _, value = strfind(left:GetText(), L["^Set: Improves your chance to get a critical strike with spells by (%d)%%."])
+					if value and SET_NAME and not tContains(Crit_Set_Bonus, SET_NAME) then
+						tinsert(Crit_Set_Bonus, SET_NAME)
+						spellCrit = spellCrit + tonumber(value)
+					end
+
 				end
 			end
 		end
