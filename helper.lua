@@ -40,6 +40,10 @@ function BCS:GetHitRating()
 					if value then
 						hit = hit + tonumber(value)
 					end
+					_,_, value = strfind(left:GetText(), L["/Hit %+(%d+)"])
+					if value then
+						hit = hit + tonumber(value)
+					end
 					_,_, value = strfind(left:GetText(), "(.+) %(%d/%d%)")
 					if value then
 						SET_NAME = value
@@ -127,7 +131,10 @@ function BCS:GetSpellHitRating()
 					local _,_, value = strfind(left:GetText(), L["Equip: Improves your chance to hit with spells by (%d)%%."])
 					if value then
 						hit = hit + tonumber(value)
-						line = MAX_LINES
+					end
+					_,_, value = strfind(left:GetText(), L["/Spell Hit %+(%d+)"])
+					if value then
+						hit = hit + tonumber(value)
 					end
 				end
 			end
@@ -358,6 +365,10 @@ function BCS:GetSpellPower(school)
 						if value then
 							spellPower = spellPower + tonumber(value)
 						end
+						_,_, value = strfind(left:GetText(), L["^%+(%d+) Spell Damage and Healing"])
+						if value then
+							spellPower = spellPower + tonumber(value)
+						end
 						
 						_,_, value = strfind(left:GetText(), L["Equip: Increases damage done by Arcane spells and effects by up to (%d+)."])
 						if value then
@@ -458,6 +469,10 @@ function BCS:GetHealingPower()
 					if value then
 						healPower = healPower + tonumber(value)
 					end
+					_,_, value = strfind(left:GetText(), L["^%+(%d+) Healing Spells"])
+					if value then
+						healPower = healPower + tonumber(value)
+					end
 				end
 			end
 		end
@@ -546,6 +561,35 @@ function BCS:GetManaRegen()
 	
 	casting = power_regen / 100
 	base = power_regen
+	
+	local mp5 = 0;
+	local MAX_INVENTORY_SLOTS = 19
+	
+	for slot=0, MAX_INVENTORY_SLOTS do
+		local hasItem = BCS_Tooltip:SetInventoryItem("player", slot)
+		
+		if hasItem then
+			for line=1, BCS_Tooltip:NumLines() do
+				local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
+				
+				if left:GetText() then
+					local _,_, value = strfind(left:GetText(), L["^Mana Regen %+(%d+)"])
+					if value then
+						mp5 = mp5 + tonumber(value)
+					end
+					_,_, value = strfind(left:GetText(), L["Equip: Restores (%d+) mana per 5 sec."])
+					if value then
+						mp5 = mp5 + tonumber(value)
+					end
+				end
+			end
+		end
+		
+	end
+	
+	mp5 = mp5 / 5
+	base = base + mp5
+	casting = casting + mp5
 	
 	return base, casting
 end

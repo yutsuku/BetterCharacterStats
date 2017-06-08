@@ -27,6 +27,15 @@ BCS["L"] = {
 	["Frost Damage %+(%d+)"] = "Frost Damage %+(%d+)",
 	["Healing Spells %+(%d+)"] = "Healing Spells %+(%d+)",
 	
+	["Equip: Restores (%d+) mana per 5 sec."] = "Equip: Restores (%d+) mana per 5 sec.",
+	
+	-- snowflakes ZG enchants
+	["/Hit %+(%d+)"] = "/Hit %+(%d+)",
+	["/Spell Hit %+(%d+)"] = "/Spell Hit %+(%d+)",
+	["^Mana Regen %+(%d+)"] = "^Mana Regen %+(%d+)",
+	["^%+(%d+) Healing Spells"] = "^%+(%d+) Healing Spells",
+	["^%+(%d+) Spell Damage and Healing"] = "^%+(%d+) Spell Damage and Healing",
+	
 	["Equip: Increases damage and healing done by magical spells and effects by up to (%d+)."] = "Equip: Increases damage and healing done by magical spells and effects by up to (%d+).",
 	["Equip: Increases healing done by spells and effects by up to (%d+)."] = "Equip: Increases healing done by spells and effects by up to (%d+).",
 	
