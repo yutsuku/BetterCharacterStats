@@ -60,6 +60,26 @@ function BCS:GetHitRating()
 		end
 	end
 
+	-- buffs
+	-- http://blue.cardplace.com/cache/wow-dungeons/624230.htm
+	-- 32 buffs max
+	for i=0, 31 do
+		if GetPlayerBuff(i) > -1 then
+			BCS_Tooltip:SetPlayerBuff(i)
+			local MAX_LINES = BCS_Tooltip:NumLines()
+				
+			for line=1, MAX_LINES do
+				local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
+				if left:GetText() then
+					local _,_, value = strfind(left:GetText(), L["Chance to hit increased by (%d)%%."])
+					if value then
+						hit = hit + tonumber(value)
+					end
+				end
+			end
+		end
+	end
+	
 	local MAX_TABS = GetNumTalentTabs()
 	
 	-- speedup
@@ -347,6 +367,7 @@ function BCS:GetSpellPower(school)
 		local holyPower = 0;
 		local naturePower = 0;
 		local shadowPower = 0;
+		local damagePower = 0;
 		local MAX_INVENTORY_SLOTS = 19
 		
 		for slot=0, MAX_INVENTORY_SLOTS do
@@ -417,6 +438,27 @@ function BCS:GetSpellPower(school)
 			
 		end
 		
+		-- buffs
+		-- http://blue.cardplace.com/cache/wow-dungeons/624230.htm
+		-- 32 buffs max
+		for i=0, 31 do
+			if GetPlayerBuff(i) > -1 then
+				BCS_Tooltip:SetPlayerBuff(i)
+				local MAX_LINES = BCS_Tooltip:NumLines()
+					
+				for line=1, MAX_LINES do
+					local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
+					if left:GetText() then
+						local _,_, value = strfind(left:GetText(), L["Magical damage dealt is increased by up to (%d+)."])
+						if value then
+							spellPower = spellPower + tonumber(value)
+							damagePower = damagePower + tonumber(value)
+						end
+					end
+				end
+			end
+		end
+		
 		local secondaryPower = 0
 		local secondaryPowerName = ""
 		
@@ -445,7 +487,7 @@ function BCS:GetSpellPower(school)
 			secondaryPowerName = L.SPELL_SCHOOL_SHADOW
 		end
 		
-		return spellPower, secondaryPower, secondaryPowerName
+		return spellPower, secondaryPower, secondaryPowerName, damagePower
 	end
 end
 
@@ -477,6 +519,26 @@ function BCS:GetHealingPower()
 			end
 		end
 		
+	end
+	
+	-- buffs
+	-- http://blue.cardplace.com/cache/wow-dungeons/624230.htm
+	-- 32 buffs max
+	for i=0, 31 do
+		if GetPlayerBuff(i) > -1 then
+			BCS_Tooltip:SetPlayerBuff(i)
+			local MAX_LINES = BCS_Tooltip:NumLines()
+				
+			for line=1, MAX_LINES do
+				local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
+				if left:GetText() then
+					local _,_, value = strfind(left:GetText(), L["Healing done by magical spells is increased by up to (%d+)."])
+					if value then
+						healPower = healPower + tonumber(value)
+					end
+				end
+			end
+		end
 	end
 	
 	return healPower

@@ -39,6 +39,11 @@ BCS["L"] = {
 	["Equip: Increases damage and healing done by magical spells and effects by up to (%d+)."] = "Equip: Increases damage and healing done by magical spells and effects by up to (%d+).",
 	["Equip: Increases healing done by spells and effects by up to (%d+)."] = "Equip: Increases healing done by spells and effects by up to (%d+).",
 	
+	-- buffs!
+	["Chance to hit increased by (%d)%%."] = "Chance to hit increased by (%d)%%.",
+	["Magical damage dealt is increased by up to (%d+)."] = "Magical damage dealt is increased by up to (%d+).",
+	["Healing done by magical spells is increased by up to (%d+)."] = "Healing done by magical spells is increased by up to (%d+).",
+	
 	["MELEE_HIT_TOOLTIP"] = [[|cffffffffHit|r
 	Result of an attack made with 
 	melee or ranged weapons.]],

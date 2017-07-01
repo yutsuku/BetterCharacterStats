@@ -543,8 +543,10 @@ function BCS:SetHealing(statFrame)
 	local text = getglobal(statFrame:GetName() .. "StatText")
 	local label = getglobal(statFrame:GetName() .. "Label")
 	
-	local power = BCS:GetSpellPower()
+	local power,_,_,dmg = BCS:GetSpellPower()
 	local heal = BCS:GetHealingPower()
+	
+	power = power-dmg
 	
 	label:SetText(L.HEAL_POWER_COLON)
 	text:SetText(power+heal)
