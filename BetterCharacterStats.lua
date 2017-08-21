@@ -568,8 +568,21 @@ function BCS:SetManaRegen(statFrame)
 	local text = getglobal(statFrame:GetName() .. "StatText")
 	local label = getglobal(statFrame:GetName() .. "Label")
 	
+	local base, casting, mp5 = BCS:GetManaRegen()
+	
 	label:SetText(L.MANA_REGEN_COLON)
-	text:SetText(format("%d", BCS:GetManaRegen()))
+	text:SetText(format("%d", base+mp5))
+	
+	frame.tooltip = format(L.SPELL_MANA_REGEN_TOOLTIP, (base+mp5), base, mp5)
+	
+	frame:SetScript("OnEnter", function()
+		GameTooltip:SetOwner(this, "ANCHOR_RIGHT")
+		GameTooltip:SetText(this.tooltip)
+		GameTooltip:Show()
+	end)
+	frame:SetScript("OnLeave", function()
+		GameTooltip:Hide()
+	end)
 end
 
 function BCS:SetDodge(statFrame)

@@ -59,7 +59,10 @@ BCS["L"] = {
 	Increases damage done by spells and effects.]],
 	
 	["SPELL_HEALING_POWER_TOOLTIP"] = [[|cffffffffHealing Power %d (%d|cff20ff20+%d|r|cffffffff)|r
-	Increases healing done by spells and effects.]],
+	Increases healing done by spells and effects.]],	
+	
+	["SPELL_MANA_REGEN_TOOLTIP"] = [[|cffffffffMana regen %d (%d|cff20ff20+%d|r|cffffffff)|r
+	Regenerating points of mana every 5 seconds.]],
 	
 	["ROGUE_MELEE_HIT_TOOLTIP"] = [[
 +5% hit to always hit enemy players.

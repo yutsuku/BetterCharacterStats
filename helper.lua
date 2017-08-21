@@ -649,9 +649,8 @@ function BCS:GetManaRegen()
 		
 	end
 	
-	mp5 = mp5 / 5
-	base = base + mp5
-	casting = casting + mp5
+	base = (base*5)
+	casting = (casting*5)
 	
-	return base, casting
+	return base, casting, mp5
 end
