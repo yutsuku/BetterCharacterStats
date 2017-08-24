@@ -370,10 +370,14 @@ function BCS:GetSpellPower(school)
 		local damagePower = 0;
 		local MAX_INVENTORY_SLOTS = 19
 		
+		local SpellPower_Set_Bonus = {}
+		
 		for slot=0, MAX_INVENTORY_SLOTS do
 			local hasItem = BCS_Tooltip:SetInventoryItem("player", slot)
 			
 			if hasItem then
+				local SET_NAME
+				
 				for line=1, BCS_Tooltip:NumLines() do
 					local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
 					
@@ -432,6 +436,18 @@ function BCS:GetSpellPower(school)
 						if value then
 							shadowPower = shadowPower + tonumber(value)
 						end
+						
+						_,_, value = strfind(left:GetText(), "(.+) %(%d/%d%)")
+						if value then
+							SET_NAME = value
+						end
+
+						_, _, value = strfind(left:GetText(), L["^Set: Increases damage and healing done by magical spells and effects by up to (%d+)%."])
+						if value and SET_NAME and not tContains(SpellPower_Set_Bonus, SET_NAME) then
+							tinsert(SpellPower_Set_Bonus, SET_NAME)
+							spellPower = spellPower + tonumber(value)
+						end
+						
 					end
 				end
 			end
