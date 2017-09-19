@@ -477,21 +477,51 @@ function BCS:SetRating(statFrame, ratingType)
 			frame.tooltipSubtext = L[BCS.playerClass .. "_MELEE_HIT_TOOLTIP"]
 		end
 	elseif ratingType == "SPELL" then
-		local rating = BCS:GetSpellHitRating()
-		if BCS.SPELLHIT[BCS.playerClass] then
-			if rating < BCS.SPELLHIT[BCS.playerClass][1] then
-				rating = colorNeg .. rating .. "%|r"
-			elseif rating >= BCS.SPELLHIT[BCS.playerClass][2] then
-				rating = colorPos .. rating .. "%|r"
+		local spell_hit, spell_hit_fire, spell_hit_frost, spell_hit_arcane, spell_hit_shadow = BCS:GetSpellHitRating()
+		--[[if BCS.SPELLHIT[BCS.playerClass] then
+			if spell_hit < BCS.SPELLHIT[BCS.playerClass][1] then
+				spell_hit = colorNeg .. spell_hit .. "%|r"
+			elseif spell_hit >= BCS.SPELLHIT[BCS.playerClass][2] then
+				spell_hit = colorPos .. spell_hit .. "%|r"
 			else
-				rating = rating .. "%"
+				spell_hit = spell_hit .. "%"
 			end
 		else
-			rating = rating .. "%"
-		end
-		text:SetText(rating)
+			spell_hit = spell_hit .. "%"
+		end]]
 		
-		frame.tooltip = L.SPELL_HIT_TOOLTIP
+		if spell_hit_fire > 0 or spell_hit_frost > 0 or spell_hit_arcane > 0 or spell_hit_shadow > 0 then
+			-- got spell hit from talents
+			local spell_hit_other, spell_hit_other_type
+			
+			spell_hit_other = 0 
+			spell_hit_other_type = ""
+			
+			if spell_hit_fire > spell_hit_other then
+				spell_hit_other = spell_hit_fire
+				spell_hit_other_type = L.SPELL_SCHOOL_FIRE
+			end
+			if spell_hit_frost > spell_hit_other then
+				spell_hit_other = spell_hit_frost
+				spell_hit_other_type = L.SPELL_SCHOOL_FROST
+			end
+			if spell_hit_arcane > spell_hit_other then
+				spell_hit_other = spell_hit_arcane
+				spell_hit_other_type = L.SPELL_SCHOOL_ARCANE
+			end
+			if spell_hit_shadow > spell_hit_other then
+				spell_hit_other = spell_hit_shadow
+				spell_hit_other_type = L.SPELL_SCHOOL_SHADOW
+			end
+			
+			frame.tooltip = format(L.SPELL_HIT_SECONDARY_TOOLTIP, spell_hit+spell_hit_other, spell_hit, spell_hit_other, spell_hit_other_type)
+			text:SetText(spell_hit+spell_hit_other.."%")
+		else
+			frame.tooltip = L.SPELL_HIT_TOOLTIP
+			text:SetText(spell_hit.."%")
+		end
+		
+		-- class specific tooltip
 		if L[BCS.playerClass .. "_SPELL_HIT_TOOLTIP"] then
 			frame.tooltipSubtext = L[BCS.playerClass .. "_SPELL_HIT_TOOLTIP"]
 		end

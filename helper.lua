@@ -135,8 +135,13 @@ end
 
 function BCS:GetSpellHitRating()
 	local hit = 0
-	local MAX_INVENTORY_SLOTS = 19
+	local hit_fire = 0
+	local hit_frost = 0
+	local hit_arcane = 0
+	local hit_shadow = 0
 	
+	-- scan gear
+	local MAX_INVENTORY_SLOTS = 19
 	for slot=0, MAX_INVENTORY_SLOTS do
 		local hasItem = BCS_Tooltip:SetInventoryItem("player", slot)
 		
@@ -162,7 +167,52 @@ function BCS:GetSpellHitRating()
 		end
 	end
 	
-	return hit
+	-- scan talents
+	local MAX_TABS = GetNumTalentTabs()
+	
+	for tab=1, MAX_TABS do
+		local MAX_TALENTS = GetNumTalents(tab)
+		
+		for talent=1, MAX_TALENTS do
+			BCS_Tooltip:SetTalent(tab, talent)
+			local MAX_LINES = BCS_Tooltip:NumLines()
+			
+			for line=1, MAX_LINES do
+				local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
+				if left:GetText() then
+					-- Mage
+					-- Elemental Precision
+					local _,_, value = strfind(left:GetText(), L["Reduces the chance that the opponent can resist your Frost and Fire spells by (%d)%%."])
+					local name, iconTexture, tier, column, rank, maxRank, isExceptional, meetsPrereq = GetTalentInfo(tab, talent)
+					if value and rank > 0 then
+						hit_fire = hit_fire + tonumber(value)
+						hit_frost = hit_frost + tonumber(value)
+						line = MAX_LINES
+					end
+					
+					-- Arcane Focus
+					_,_, value = strfind(left:GetText(), L["Reduces the chance that the opponent can resist your Arcane spells by (%d+)%%."])
+					local name, iconTexture, tier, column, rank, maxRank, isExceptional, meetsPrereq = GetTalentInfo(tab, talent)
+					if value and rank > 0 then
+						hit_arcane = hit_arcane + tonumber(value)
+						line = MAX_LINES
+					end
+					
+					-- Priest
+					-- Shadow Focus
+					_,_, value = strfind(left:GetText(), L["Reduces your target's chance to resist your Shadow spells by (%d+)%%."])
+					local name, iconTexture, tier, column, rank, maxRank, isExceptional, meetsPrereq = GetTalentInfo(tab, talent)
+					if value and rank > 0 then
+						hit_shadow = hit_shadow + tonumber(value)
+						line = MAX_LINES
+					end
+				end	
+			end
+			
+		end
+	end
+	
+	return hit, hit_fire, hit_frost, hit_arcane, hit_shadow
 end
 
 local Cache_GetCritChance_SpellID, Cache_GetCritChance_BookType, Cache_GetCritChance_Line
@@ -372,6 +422,7 @@ function BCS:GetSpellPower(school)
 		
 		local SpellPower_Set_Bonus = {}
 		
+		-- scan gear
 		for slot=0, MAX_INVENTORY_SLOTS do
 			local hasItem = BCS_Tooltip:SetInventoryItem("player", slot)
 			
@@ -453,6 +504,39 @@ function BCS:GetSpellPower(school)
 			end
 			
 		end
+		
+		-- scan talents
+		local MAX_TABS = GetNumTalentTabs()
+		
+		for tab=1, MAX_TABS do
+			local MAX_TALENTS = GetNumTalents(tab)
+			
+			for talent=1, MAX_TALENTS do
+				BCS_Tooltip:SetTalent(tab, talent)
+				local MAX_LINES = BCS_Tooltip:NumLines()
+				
+				for line=1, MAX_LINES do
+					local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
+					if left:GetText() then
+						-- Priest
+						-- Spiritual Guidance
+						local _,_, value = strfind(left:GetText(), L["Increases spell damage and healing by up to (%d+)%% of your total Spirit."])
+						local name, iconTexture, tier, column, rank, maxRank, isExceptional, meetsPrereq = GetTalentInfo(tab, talent)
+						if value and rank > 0 then
+							local stat, effectiveStat = UnitStat("player", 5)
+							spellPower = spellPower + floor(((tonumber(value) / 100) * effectiveStat))
+							
+							-- nothing more is currenlty supported, break out of the loops
+							line = MAX_LINES
+							talent = MAX_TALENTS
+							tab = MAX_TABS
+						end
+					end	
+				end
+				
+			end
+		end
+		
 		
 		-- buffs
 		-- http://blue.cardplace.com/cache/wow-dungeons/624230.htm
