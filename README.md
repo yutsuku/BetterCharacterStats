@@ -10,18 +10,16 @@ Create AddOns folder if necessary
 
 After Installation directory tree should look like the following
 
-<pre>
-World of Warcraft
-  `- Interface
-     `- AddOns
-        `- BetterCharacterStats
-           |- README.md
-           |- BetterCharacterStats.lua
-           |- BetterCharacterStats.toc
-           |- BetterCharacterStats.xml
-           |- helper.lua
-           `- Localization.lua
-</pre>
+	World of Warcraft
+	  `- Interface
+		 `- AddOns
+			`- BetterCharacterStats
+			   |- README.md
+			   |- BetterCharacterStats.lua
+			   |- BetterCharacterStats.toc
+			   |- BetterCharacterStats.xml
+			   |- helper.lua
+			   `- Localization.lua
 
 Features:
 - Displays character statistics in one place (just like the character tab in Burning Crusade).
