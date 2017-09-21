@@ -456,8 +456,16 @@ function BCS:GetSpellPower(school)
 						if value then
 							spellPower = spellPower + tonumber(value)
 						end
+						_,_, value = strfind(left:GetText(), L["^%+(%d+) Damage and Healing Spells"])
+						if value then
+							spellPower = spellPower + tonumber(value)
+						end
 						
 						_,_, value = strfind(left:GetText(), L["Equip: Increases damage done by Arcane spells and effects by up to (%d+)."])
+						if value then
+							arcanePower = arcanePower + tonumber(value)
+						end
+						_,_, value = strfind(left:GetText(), L["^%+(%d+) Arcane Spell Damage"])
 						if value then
 							arcanePower = arcanePower + tonumber(value)
 						end
@@ -470,6 +478,10 @@ function BCS:GetSpellPower(school)
 						if value then
 							firePower = firePower + tonumber(value)
 						end
+						_,_, value = strfind(left:GetText(), L["^%+(%d+) Fire Spell Damage"])
+						if value then
+							firePower = firePower + tonumber(value)
+						end
 						
 						_,_, value = strfind(left:GetText(), L["Equip: Increases damage done by Frost spells and effects by up to (%d+)."])
 						if value then
@@ -479,13 +491,25 @@ function BCS:GetSpellPower(school)
 						if value then
 							frostPower = frostPower + tonumber(value)
 						end
+						_,_, value = strfind(left:GetText(), L["^%+(%d+) Frost Spell Damage"])
+						if value then
+							frostPower = frostPower + tonumber(value)
+						end
 						
 						_,_, value = strfind(left:GetText(), L["Equip: Increases damage done by Holy spells and effects by up to (%d+)."])
 						if value then
 							holyPower = holyPower + tonumber(value)
 						end
+						_,_, value = strfind(left:GetText(), L["^%+(%d+) Holy Spell Damage"])
+						if value then
+							holyPower = holyPower + tonumber(value)
+						end
 						
 						_,_, value = strfind(left:GetText(), L["Equip: Increases damage done by Nature spells and effects by up to (%d+)."])
+						if value then
+							naturePower = naturePower + tonumber(value)
+						end
+						_,_, value = strfind(left:GetText(), L["^%+(%d+) Nature Spell Damage"])
 						if value then
 							naturePower = naturePower + tonumber(value)
 						end
@@ -495,6 +519,10 @@ function BCS:GetSpellPower(school)
 							shadowPower = shadowPower + tonumber(value)
 						end
 						_,_, value = strfind(left:GetText(), L["Shadow Damage %+(%d+)"])
+						if value then
+							shadowPower = shadowPower + tonumber(value)
+						end
+						_,_, value = strfind(left:GetText(), L["^%+(%d+) Shadow Spell Damage"])
 						if value then
 							shadowPower = shadowPower + tonumber(value)
 						end
@@ -764,6 +792,10 @@ function BCS:GetManaRegen()
 						mp5 = mp5 + tonumber(value)
 					end
 					_,_, value = strfind(left:GetText(), L["Equip: Restores (%d+) mana per 5 sec."])
+					if value then
+						mp5 = mp5 + tonumber(value)
+					end
+					_,_, value = strfind(left:GetText(), L["^%+(%d+) mana every 5 sec."])
 					if value then
 						mp5 = mp5 + tonumber(value)
 					end

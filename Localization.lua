@@ -36,6 +36,16 @@ BCS["L"] = {
 	
 	["Equip: Restores (%d+) mana per 5 sec."] = "Equip: Restores (%d+) mana per 5 sec.",
 	
+	-- Random Bonuses // https://wow.gamepedia.com/index.php?title=SuffixId&oldid=204406
+	["^%+(%d+) Damage and Healing Spells"] = "^%+(%d+) Damage and Healing Spells",
+	["^%+(%d+) Arcane Spell Damage"] = "^%+(%d+) Arcane Spell Damage",
+	["^%+(%d+) Fire Spell Damage"] = "^%+(%d+) Fire Spell Damage",
+	["^%+(%d+) Frost Spell Damage"] = "^%+(%d+) Frost Spell Damage",
+	["^%+(%d+) Holy Spell Damage"] = "^%+(%d+) Holy Spell Damage",
+	["^%+(%d+) Nature Spell Damage"] = "^%+(%d+) Nature Spell Damage",
+	["^%+(%d+) Shadow Spell Damage"] = "^%+(%d+) Shadow Spell Damage",
+	["^%+(%d+) mana every 5 sec."] = "^%+(%d+) mana every 5 sec.",
+	
 	-- snowflakes ZG enchants
 	["/Hit %+(%d+)"] = "/Hit %+(%d+)",
 	["/Spell Hit %+(%d+)"] = "/Spell Hit %+(%d+)",
