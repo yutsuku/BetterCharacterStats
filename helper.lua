@@ -139,6 +139,7 @@ function BCS:GetSpellHitRating()
 	local hit_frost = 0
 	local hit_arcane = 0
 	local hit_shadow = 0
+	local hit_Set_Bonus = {}
 	
 	-- scan gear
 	local MAX_INVENTORY_SLOTS = 19
@@ -146,19 +147,29 @@ function BCS:GetSpellHitRating()
 		local hasItem = BCS_Tooltip:SetInventoryItem("player", slot)
 		
 		if hasItem then
+			local SET_NAME
 			local MAX_LINES = BCS_Tooltip:NumLines()
 			
 			for line=1, MAX_LINES do
 				local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
 				
 				if left:GetText() then
-					
 					local _,_, value = strfind(left:GetText(), L["Equip: Improves your chance to hit with spells by (%d)%%."])
 					if value then
 						hit = hit + tonumber(value)
 					end
 					_,_, value = strfind(left:GetText(), L["/Spell Hit %+(%d+)"])
 					if value then
+						hit = hit + tonumber(value)
+					end
+					
+					_,_, value = strfind(left:GetText(), "(.+) %(%d/%d%)")
+					if value then
+						SET_NAME = value
+					end
+					_, _, value = strfind(left:GetText(), L["^Set: Improves your chance to hit with spells by (%d)%%."])
+					if value and SET_NAME and not tContains(hit_Set_Bonus, SET_NAME) then
+						tinsert(hit_Set_Bonus, SET_NAME)
 						hit = hit + tonumber(value)
 					end
 				end
@@ -593,12 +604,15 @@ end
 
 function BCS:GetHealingPower()
 	local healPower = 0;
+	local healPower_Set_Bonus = {}
 	local MAX_INVENTORY_SLOTS = 19
 	
 	for slot=0, MAX_INVENTORY_SLOTS do
 		local hasItem = BCS_Tooltip:SetInventoryItem("player", slot)
 		
 		if hasItem then
+			local SET_NAME
+			
 			for line=1, BCS_Tooltip:NumLines() do
 				local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
 				
@@ -613,6 +627,16 @@ function BCS:GetHealingPower()
 					end
 					_,_, value = strfind(left:GetText(), L["^%+(%d+) Healing Spells"])
 					if value then
+						healPower = healPower + tonumber(value)
+					end
+					
+					_,_, value = strfind(left:GetText(), "(.+) %(%d/%d%)")
+					if value then
+						SET_NAME = value
+					end
+					_, _, value = strfind(left:GetText(), L["^Set: Increases healing done by spells and effects by up to (%d+)%."])
+					if value and SET_NAME and not tContains(healPower_Set_Bonus, SET_NAME) then
+						tinsert(healPower_Set_Bonus, SET_NAME)
 						healPower = healPower + tonumber(value)
 					end
 				end
