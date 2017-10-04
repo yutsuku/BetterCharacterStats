@@ -413,6 +413,12 @@ function BCS:GetSpellPower(school)
 								spellPower = spellPower + tonumber(value)
 							end
 						end
+						if L["^%+(%d+) "..school.." Spell Damage"] then
+							_,_, value = strfind(left:GetText(), L["^%+(%d+) "..school.." Spell Damage"])
+							if value then
+								spellPower = spellPower + tonumber(value)
+							end
+						end
 					end
 				end
 			end
