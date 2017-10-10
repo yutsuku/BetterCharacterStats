@@ -1,4 +1,3 @@
--- to-do, make it faster, get more stats for casters maaaybe, (more?) tooltips
 BCS = BCS or {}
 BCSConfig = BCSConfig or {}
 
