@@ -63,6 +63,14 @@ end
 
 function BCS:OnLoad()
 	CharacterAttributesFrame:Hide()
+	PaperDollFrame:UnregisterEvent('UNIT_DAMAGE')
+	PaperDollFrame:UnregisterEvent('PLAYER_DAMAGE_DONE_MODS')
+	PaperDollFrame:UnregisterEvent('UNIT_ATTACK_SPEED')
+	PaperDollFrame:UnregisterEvent('UNIT_RANGEDDAMAGE')
+	PaperDollFrame:UnregisterEvent('UNIT_ATTACK')
+	PaperDollFrame:UnregisterEvent('UNIT_STATS')
+	PaperDollFrame:UnregisterEvent('UNIT_ATTACK_POWER')
+	PaperDollFrame:UnregisterEvent('UNIT_RANGED_ATTACK_POWER')
 	
 	self.Frame = BCSFrame
 	self.needUpdate = nil
@@ -143,22 +151,6 @@ function BCS:UpdateStats()
 	avg = avg / getn(avgV)
 	
 	BCS:Print(format("Average: %d (%d results), Exact: %d", avg, getn(avgV), timeUsed))]]
-	--[[
-		Used method:
-		
-		Uneqip main weapon
-		Uneqip secondary weapon
-		Equip main weapon
-		Equip secondary weapon
-		
-		repeat 3x (in total)
-	]]
-	-- 45 264 586 -- default speed
-	-- 44 316 259 -- removed unit checking with hardcoded value "player"
-	--    606 143 -- PLAYERSTAT_MELEE_COMBAT disabled, only updating base stats
-	--    166 225 -- removed update functions from both tabs
-	--      1 412 -- calling timers immediately
-	--    308 575 -- calling BCS:Print() between timers
 end
 
 function BCS:SetStat(statFrame, statIndex)

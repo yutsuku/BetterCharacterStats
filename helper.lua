@@ -21,6 +21,47 @@ local function tContains(table, item)
 	return nil
 end
 
+function BCS:GetPlayerAura(searchText, auraType)
+	if not auraType then
+		-- buffs
+		-- http://blue.cardplace.com/cache/wow-dungeons/624230.htm
+		-- 32 buffs max
+		for i=0, 31 do
+			if GetPlayerBuff(i, 'HELPFUL') > -1 then
+				BCS_Tooltip:SetPlayerBuff(i)
+				local MAX_LINES = BCS_Tooltip:NumLines()
+					
+				for line=1, MAX_LINES do
+					local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
+					if left:GetText() then
+						local value = {strfind(left:GetText(), searchText)}
+						if value[1] then
+							return unpack(value)
+						end
+					end
+				end
+			end
+		end
+	elseif auraType == 'HARMFUL' then
+		for i=0, 6 do
+			if GetPlayerBuff(i, auraType) > -1 then
+				BCS_Tooltip:SetPlayerBuff(i)
+				local MAX_LINES = BCS_Tooltip:NumLines()
+					
+				for line=1, MAX_LINES do
+					local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
+					if left:GetText() then
+						local value = {strfind(left:GetText(), searchText)}
+						if value[1] then
+							return unpack(value)
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
 local Cache_GetHitRating_Tab, Cache_GetHitRating_Talent
 function BCS:GetHitRating()
 	local Hit_Set_Bonus = {}
@@ -61,27 +102,33 @@ function BCS:GetHitRating()
 	end
 
 	-- buffs
-	-- http://blue.cardplace.com/cache/wow-dungeons/624230.htm
-	-- 32 buffs max
-	for i=0, 31 do
-		if GetPlayerBuff(i) > -1 then
-			BCS_Tooltip:SetPlayerBuff(i)
-			local MAX_LINES = BCS_Tooltip:NumLines()
-				
-			for line=1, MAX_LINES do
-				local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
-				if left:GetText() then
-					local _,_, value = strfind(left:GetText(), L["Chance to hit increased by (%d)%%."])
-					if value then
-						hit = hit + tonumber(value)
-					end
-				end
-			end
-		end
+	local _, _, hitFromAura = BCS:GetPlayerAura(L["Chance to hit increased by (%d)%%."])
+	if hitFromAura then
+		hit = hit + tonumber(hitFromAura)
+	end
+	 _, _, hitFromAura = BCS:GetPlayerAura(L["Improves your chance to hit by (%d+)%%."])
+	if hitFromAura then
+		hit = hit + tonumber(hitFromAura)
+	end
+	 _, _, hitFromAura = BCS:GetPlayerAura(L["Increases attack power by %d+ and chance to hit by (%d+)%%."])
+	if hitFromAura then
+		hit = hit + tonumber(hitFromAura)
+	end
+	-- debuffs
+	_, _, hitFromAura = BCS:GetPlayerAura(L["Chance to hit reduced by (%d+)%%."], 'HARMFUL')
+	if hitFromAura then
+		hit = hit - tonumber(hitFromAura)
+	end
+	_, _, hitFromAura = BCS:GetPlayerAura(L["Chance to hit decreased by (%d+)%% and %d+ Nature damage every %d+ sec."], 'HARMFUL')
+	if hitFromAura then
+		hit = hit - tonumber(hitFromAura)
+	end
+	hitFromAura = BCS:GetPlayerAura(L["Lowered chance to hit."], 'HARMFUL')
+	if hitFromAura then
+		hit = hit - 25
 	end
 	
 	local MAX_TABS = GetNumTalentTabs()
-	
 	-- speedup
 	if Cache_GetHitRating_Tab and Cache_GetHitRating_Talent then
 		BCS_Tooltip:SetTalent(Cache_GetHitRating_Tab, Cache_GetHitRating_Talent)
@@ -99,6 +146,7 @@ function BCS:GetHitRating()
 			end
 		end
 		
+		if hit < 0 then hit = 0 end
 		return hit
 	end
 	
@@ -130,6 +178,7 @@ function BCS:GetHitRating()
 		end
 	end
 	
+	if hit < 0 then hit = 0 end -- Dust Cloud OP
 	return hit
 end
 
@@ -221,6 +270,12 @@ function BCS:GetSpellHitRating()
 			end
 			
 		end
+	end
+	
+	-- buffs
+	local _, _, hitFromAura = BCS:GetPlayerAura(L["Spell hit chance increased by (%d+)%%."])
+	if hitFromAura then
+		hit = hit + tonumber(hitFromAura)
 	end
 	
 	return hit, hit_fire, hit_frost, hit_arcane, hit_shadow
@@ -384,6 +439,33 @@ function BCS:GetSpellCritChance()
 			end
 		end
 		
+	end
+	
+	-- buffs
+	local _, _, critFromAura = BCS:GetPlayerAura(L["Chance for a critical hit with a spell increased by (%d+)%%."])
+	if critFromAura then
+		spellCrit = spellCrit + tonumber(critFromAura)
+	end
+	_, _, critFromAura = BCS:GetPlayerAura(L["While active, target's critical hit chance with spells and attacks increases by 10%%."])
+	if critFromAura then
+		spellCrit = spellCrit + 10
+	end
+	_, _, critFromAura = BCS:GetPlayerAura(L["Increases chance for a melee, ranged, or spell critical by (%d+)%% and all attributes by %d+."])
+	if critFromAura then
+		spellCrit = spellCrit + tonumber(critFromAura)
+	end
+	critFromAura = BCS:GetPlayerAura(L["Increases critical chance of spells by 10%%, melee and ranged by 5%% and grants 140 attack power. 120 minute duration."])
+	if critFromAura then
+		spellCrit = spellCrit + 10
+	end
+	_, _, critFromAura = BCS:GetPlayerAura(L["Critical strike chance with spells and melee attacks increased by (%d+)%%."])
+	if critFromAura then
+		spellCrit = spellCrit + tonumber(critFromAura)
+	end
+	-- debuffs
+	_, _, _, critFromAura = BCS:GetPlayerAura(L["Melee critical-hit chance reduced by (%d+)%%.\r\nSpell critical-hit chance reduced by (%d+)%%."], 'HARMFUL')
+	if critFromAura then
+		spellCrit = spellCrit - tonumber(critFromAura)
 	end
 	
 	return spellCrit
@@ -582,26 +664,11 @@ function BCS:GetSpellPower(school)
 			end
 		end
 		
-		
 		-- buffs
-		-- http://blue.cardplace.com/cache/wow-dungeons/624230.htm
-		-- 32 buffs max
-		for i=0, 31 do
-			if GetPlayerBuff(i) > -1 then
-				BCS_Tooltip:SetPlayerBuff(i)
-				local MAX_LINES = BCS_Tooltip:NumLines()
-					
-				for line=1, MAX_LINES do
-					local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
-					if left:GetText() then
-						local _,_, value = strfind(left:GetText(), L["Magical damage dealt is increased by up to (%d+)."])
-						if value then
-							spellPower = spellPower + tonumber(value)
-							damagePower = damagePower + tonumber(value)
-						end
-					end
-				end
-			end
+		local _, _, spellPowerFromAura = BCS:GetPlayerAura(L["Magical damage dealt is increased by up to (%d+)."])
+		if spellPowerFromAura then
+			spellPower = spellPower + tonumber(spellPowerFromAura)
+			damagePower = damagePower + tonumber(spellPowerFromAura)
 		end
 		
 		local secondaryPower = 0
@@ -680,23 +747,9 @@ function BCS:GetHealingPower()
 	end
 	
 	-- buffs
-	-- http://blue.cardplace.com/cache/wow-dungeons/624230.htm
-	-- 32 buffs max
-	for i=0, 31 do
-		if GetPlayerBuff(i) > -1 then
-			BCS_Tooltip:SetPlayerBuff(i)
-			local MAX_LINES = BCS_Tooltip:NumLines()
-				
-			for line=1, MAX_LINES do
-				local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
-				if left:GetText() then
-					local _,_, value = strfind(left:GetText(), L["Healing done by magical spells is increased by up to (%d+)."])
-					if value then
-						healPower = healPower + tonumber(value)
-					end
-				end
-			end
-		end
+	local _, _, healPowerFromAura = BCS:GetPlayerAura(L["Healing done by magical spells is increased by up to (%d+)."])
+	if healPowerFromAura then
+		healPower = healPower + tonumber(healPowerFromAura)
 	end
 	
 	return healPower
@@ -813,6 +866,12 @@ function BCS:GetManaRegen()
 	
 	base = (base*5)
 	casting = (casting*5)
+	
+	-- buffs
+	local _, _, mp5FromAura = BCS:GetPlayerAura(L["Increases hitpoints by 300. 15%% haste to melee attacks. 10 mana regen every 5 seconds."])
+	if mp5FromAura then
+		mp5 = mp5 + 10
+	end
 	
 	return base, casting, mp5
 end
