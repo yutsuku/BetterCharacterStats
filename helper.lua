@@ -63,7 +63,8 @@ function BCS:GetPlayerAura(searchText, auraType)
 end
 
 local Cache_GetHitRating_Tab, Cache_GetHitRating_Talent
-function BCS:GetHitRating()
+local hit_debuff = 0
+function BCS:GetHitRating(hitOnly)
 	local Hit_Set_Bonus = {}
 	local hit = 0;
 	local MAX_INVENTORY_SLOTS = 19;
@@ -117,15 +118,15 @@ function BCS:GetHitRating()
 	-- debuffs
 	_, _, hitFromAura = BCS:GetPlayerAura(L["Chance to hit reduced by (%d+)%%."], 'HARMFUL')
 	if hitFromAura then
-		hit = hit - tonumber(hitFromAura)
+		hit_debuff = hit_debuff + tonumber(hitFromAura)
 	end
 	_, _, hitFromAura = BCS:GetPlayerAura(L["Chance to hit decreased by (%d+)%% and %d+ Nature damage every %d+ sec."], 'HARMFUL')
 	if hitFromAura then
-		hit = hit - tonumber(hitFromAura)
+		hit_debuff = hit_debuff + tonumber(hitFromAura)
 	end
 	hitFromAura = BCS:GetPlayerAura(L["Lowered chance to hit."], 'HARMFUL')
 	if hitFromAura then
-		hit = hit - 25
+		hit_debuff = hit_debuff + 25
 	end
 	
 	local MAX_TABS = GetNumTalentTabs()
@@ -137,8 +138,17 @@ function BCS:GetHitRating()
 		for line=1, MAX_LINES do
 			local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
 			if left:GetText() then
+				-- rogues
 				local _,_, value = strfind(left:GetText(), L["Increases your chance to hit with melee weapons by (%d)%%."])
 				local name, iconTexture, tier, column, rank, maxRank, isExceptional, meetsPrereq = GetTalentInfo(Cache_GetHitRating_Tab, Cache_GetHitRating_Talent)
+				if value and rank > 0 then
+					hit = hit + tonumber(value)
+					line = MAX_LINES
+				end
+				
+				-- hunters
+				_,_, value = strfind(left:GetText(), L["Increases hit chance by (%d)%% and increases the chance movement impairing effects will be resisted by an additional %d+%%."])
+				name, iconTexture, tier, column, rank, maxRank, isExceptional, meetsPrereq = GetTalentInfo(Cache_GetHitRating_Tab, Cache_GetHitRating_Talent)
 				if value and rank > 0 then
 					hit = hit + tonumber(value)
 					line = MAX_LINES
@@ -146,8 +156,13 @@ function BCS:GetHitRating()
 			end
 		end
 		
-		if hit < 0 then hit = 0 end
-		return hit
+		if not hitOnly then
+			hit = hit + hit_debuff
+			if hit < 0 then hit = 0 end
+			return hit
+		else
+			return hit
+		end
 	end
 	
 	for tab=1, MAX_TABS do
@@ -160,8 +175,23 @@ function BCS:GetHitRating()
 			for line=1, MAX_LINES do
 				local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
 				if left:GetText() then
+					-- rogues
 					local _,_, value = strfind(left:GetText(), L["Increases your chance to hit with melee weapons by (%d)%%."])
 					local name, iconTexture, tier, column, rank, maxRank, isExceptional, meetsPrereq = GetTalentInfo(tab, talent)
+					if value and rank > 0 then
+						hit = hit + tonumber(value)
+						
+						Cache_GetHitRating_Tab = tab
+						Cache_GetHitRating_Talent = talent
+						
+						line = MAX_LINES
+						talent = MAX_TALENTS
+						tab = MAX_TABS
+					end
+					
+					-- hunters
+					_,_, value = strfind(left:GetText(), L["Increases hit chance by (%d)%% and increases the chance movement impairing effects will be resisted by an additional %d+%%."])
+					name, iconTexture, tier, column, rank, maxRank, isExceptional, meetsPrereq = GetTalentInfo(tab, talent)
 					if value and rank > 0 then
 						hit = hit + tonumber(value)
 						
@@ -178,8 +208,38 @@ function BCS:GetHitRating()
 		end
 	end
 	
-	if hit < 0 then hit = 0 end -- Dust Cloud OP
-	return hit
+	if not hitOnly then
+		hit = hit + hit_debuff
+		if hit < 0 then hit = 0 end -- Dust Cloud OP
+		return hit
+	else
+		return hit
+	end
+end
+
+function BCS:GetRangedHitRating()
+	local melee_hit = BCS:GetHitRating(true)
+	local ranged_hit = melee_hit
+	local debuff = hit_debuff
+
+	local hasItem = BCS_Tooltip:SetInventoryItem("player", 18) -- ranged enchant
+	if hasItem then
+		local MAX_LINES = BCS_Tooltip:NumLines()
+		for line=1, MAX_LINES do
+			local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
+			if left:GetText() then
+				local _,_, value = strfind(left:GetText(), L["+(%d)%% Hit"])
+				if value then
+					ranged_hit = ranged_hit + tonumber(value)
+					line = MAX_LINES
+				end
+			end
+		end
+	end
+	
+	ranged_hit = ranged_hit + debuff
+	if ranged_hit < 0 then ranged_hit = 0 end
+	return ranged_hit
 end
 
 function BCS:GetSpellHitRating()
@@ -282,8 +342,60 @@ function BCS:GetSpellHitRating()
 end
 
 local Cache_GetCritChance_SpellID, Cache_GetCritChance_BookType, Cache_GetCritChance_Line
+local Cache_GetCritChance_Tab, Cache_GetCritChance_Talent
 function BCS:GetCritChance()
 	local crit = 0
+	local _, class = UnitClass('player')
+	
+	if class == 'HUNTER' then
+	
+		local MAX_TABS = GetNumTalentTabs()
+		-- speedup
+		if Cache_GetCritChance_Tab and Cache_GetCritChance_Talent then
+			BCS_Tooltip:SetTalent(Cache_GetCritChance_Tab, Cache_GetCritChance_Talent)
+			local MAX_LINES = BCS_Tooltip:NumLines()
+			
+			for line=1, MAX_LINES do
+				local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
+				if left:GetText() then
+					local _,_, value = strfind(left:GetText(), L["Increases your critical strike chance with all attacks by (%d)%%."])
+					local name, iconTexture, tier, column, rank, maxRank, isExceptional, meetsPrereq = GetTalentInfo(Cache_GetCritChance_Tab, Cache_GetCritChance_Talent)
+					if value and rank > 0 then
+						crit = crit + tonumber(value)
+						line = MAX_LINES
+					end
+				end
+			end
+		else
+			for tab=1, MAX_TABS do
+				local MAX_TALENTS = GetNumTalents(tab)
+				for talent=1, MAX_TALENTS do
+					BCS_Tooltip:SetTalent(tab, talent);
+					local MAX_LINES = BCS_Tooltip:NumLines()
+					
+					for line=1, MAX_LINES do
+						local left = getglobal(BCS_Prefix .. "TextLeft" .. line)
+						if left:GetText() then
+							local _,_, value = strfind(left:GetText(), L["Increases your critical strike chance with all attacks by (%d)%%."])
+							local name, iconTexture, tier, column, rank, maxRank, isExceptional, meetsPrereq = GetTalentInfo(tab, talent)
+							if value and rank > 0 then
+								crit = crit + tonumber(value)
+								
+								Cache_GetCritChance_Tab = tab
+								Cache_GetCritChance_Talent = talent
+								
+								line = MAX_LINES
+								talent = MAX_TALENTS
+								tab = MAX_TABS
+							end
+						end	
+					end
+					
+				end
+			end
+		end
+		
+	end
 	
 	-- speedup
 	if Cache_GetCritChance_SpellID and Cache_GetCritChance_BookType and Cache_GetCritChance_Line then

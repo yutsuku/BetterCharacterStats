@@ -449,7 +449,7 @@ function BCS:SetRating(statFrame, ratingType)
 			frame.tooltipSubtext = L[BCS.playerClass .. "_MELEE_HIT_TOOLTIP"]
 		end
 	elseif ratingType == "RANGED" then
-		local rating = BCS:GetHitRating()
+		local rating = BCS:GetRangedHitRating()
 		if BCS.MELEEHIT[BCS.playerClass] then
 			if rating < BCS.MELEEHIT[BCS.playerClass][1] then
 				rating = colorNeg .. rating .. "%|r"
