@@ -27,8 +27,9 @@ function BCS:GetPlayerAura(searchText, auraType)
 		-- http://blue.cardplace.com/cache/wow-dungeons/624230.htm
 		-- 32 buffs max
 		for i=0, 31 do
-			if GetPlayerBuff(i, 'HELPFUL') > -1 then
-				BCS_Tooltip:SetPlayerBuff(i)
+			local index = GetPlayerBuff(i, 'HELPFUL')
+			if index > -1 then
+				BCS_Tooltip:SetPlayerBuff(index)
 				local MAX_LINES = BCS_Tooltip:NumLines()
 					
 				for line=1, MAX_LINES do
@@ -44,8 +45,9 @@ function BCS:GetPlayerAura(searchText, auraType)
 		end
 	elseif auraType == 'HARMFUL' then
 		for i=0, 6 do
-			if GetPlayerBuff(i, auraType) > -1 then
-				BCS_Tooltip:SetPlayerBuff(i)
+			local index = GetPlayerBuff(i, auraType)
+			if index > -1 then
+				BCS_Tooltip:SetPlayerBuff(index)
 				local MAX_LINES = BCS_Tooltip:NumLines()
 					
 				for line=1, MAX_LINES do
@@ -68,6 +70,7 @@ function BCS:GetHitRating(hitOnly)
 	local Hit_Set_Bonus = {}
 	local hit = 0;
 	local MAX_INVENTORY_SLOTS = 19;
+	hit_debuff = 0;
 	
 	for slot=0, MAX_INVENTORY_SLOTS do
 		local hasItem = BCS_Tooltip:SetInventoryItem("player", slot)
@@ -157,7 +160,7 @@ function BCS:GetHitRating(hitOnly)
 		end
 		
 		if not hitOnly then
-			hit = hit + hit_debuff
+			hit = hit - hit_debuff
 			if hit < 0 then hit = 0 end
 			return hit
 		else
@@ -209,7 +212,7 @@ function BCS:GetHitRating(hitOnly)
 	end
 	
 	if not hitOnly then
-		hit = hit + hit_debuff
+		hit = hit - hit_debuff
 		if hit < 0 then hit = 0 end -- Dust Cloud OP
 		return hit
 	else
@@ -237,7 +240,7 @@ function BCS:GetRangedHitRating()
 		end
 	end
 	
-	ranged_hit = ranged_hit + debuff
+	ranged_hit = ranged_hit - debuff
 	if ranged_hit < 0 then ranged_hit = 0 end
 	return ranged_hit
 end
