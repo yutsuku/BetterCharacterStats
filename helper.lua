@@ -939,7 +939,7 @@ local function GetRegenMPPerSpirit()
 	else
 		return addvalue
 	end
-	return (addvalue / 2)
+	return addvalue
 end
 
 function BCS:GetManaRegen()
@@ -978,9 +978,6 @@ function BCS:GetManaRegen()
 		end
 		
 	end
-	
-	base = (base*5)
-	casting = (casting*5)
 	
 	-- buffs
 	local _, _, mp5FromAura = BCS:GetPlayerAura(L["Increases hitpoints by 300. 15%% haste to melee attacks. 10 mana regen every 5 seconds."])
